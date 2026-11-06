@@ -52,11 +52,43 @@ tr.go{cursor:pointer}tr.go:hover td{background:var(--soft)}
 #modal .x{position:absolute;right:16px;top:12px;border:0;background:none;font-size:28px;cursor:pointer;color:var(--mute)}
 .sp12{display:flex;align-items:flex-end;gap:4px;height:90px;margin-top:6px}.sp12 i{flex:1;background:var(--orange);border-radius:4px 4px 0 0;min-height:2px}
 .up{color:var(--red)}.dn{color:var(--green)}
+.lbl{font-size:13px;color:var(--mute);margin:0 0 6px}select.wide{width:100%;font:inherit;padding:11px 14px;border-radius:10px;border:0;background:var(--soft);color:var(--ink);margin-bottom:14px}
+details.exp{border:1px solid var(--line);border-radius:10px;background:var(--card);margin:6px 0}details.exp>summary{cursor:pointer;padding:11px 16px;font-size:15px}
+.scrl{max-height:520px;overflow:auto;padding:0 12px 12px}.scrl table{font-size:12.5px}.scrl th{position:sticky;top:0;background:var(--card)}
+.es{display:inline-block;padding:1px 8px;border-radius:999px;font-size:12px;white-space:nowrap}.es.r{background:#f6dedb;color:var(--red)}.es.a{background:#fbecc8;color:#8a5d00}.es.g{background:#dcefdc;color:var(--green)}
+.lotbar{display:flex;height:46px;border-radius:6px;overflow:hidden;gap:2px}.lotbar i{display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-style:normal;min-width:2px;overflow:hidden;white-space:nowrap}
 .chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}.chip{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--soft);color:var(--ink);border-radius:999px;padding:6px 12px}.chip:hover{border-color:var(--orange)}.chip small{color:var(--mute);margin-left:6px}
 .crumb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}.crumb b{background:var(--navy);color:#fff;border-radius:999px;padding:4px 12px}
 .flag{display:inline-block;margin:1px 4px 1px 0;padding:1px 8px;border-radius:999px;font-size:12px;background:#f6dedb;color:var(--red)}
 .gi{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.gi input,.gi select{font:inherit;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
 .btn2{font:inherit;cursor:pointer;border:0;background:var(--orange);color:#fff;border-radius:8px;padding:8px 16px;font-weight:700}
+</style>
+<style id="st">
+:root{--bg:#fff;--card:#fff;--ink:#31333f;--mute:#6b7280;--line:#e6e9ef;--soft:#f0f2f6;--navy:#31333f}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1117;--card:#0e1117;--ink:#fafafa;--mute:#a3a8b8;--line:#2b2f3b;--soft:#262730;--navy:#fafafa}}
+body{font-family:"Source Sans Pro","Source Sans 3",Calibri,"Segoe UI",system-ui,sans-serif;font-size:15px}
+header{background:var(--bg);color:var(--ink);border-bottom:1px solid var(--line);padding:10px 24px}
+header h1{font-size:18px}header .sub{color:var(--mute)}
+.search input,.hbtn,.seg button{background:var(--soft);color:var(--ink);border:1px solid transparent}
+.search input::placeholder{color:var(--mute)}
+#filw{color:var(--mute)!important}
+#cur button.on{background:var(--orange);color:#fff}
+#nav{gap:4px}#nav button{background:none;border:0;border-bottom:2px solid transparent;border-radius:0!important;color:var(--mute);padding:8px 14px;font-size:15px}
+#nav button.on{color:var(--orange);border-bottom-color:var(--orange);background:none}
+main{max-width:1500px;padding:18px 28px 60px}
+.card{border-radius:8px;box-shadow:none;border:1px solid var(--line)}
+.kpi .v{font-weight:400}.kpi .l{text-transform:none;letter-spacing:0;font-size:14px}
+th{background:transparent;font-size:13px}td{font-size:13.5px}
+details.exp{border:1px solid var(--line);border-radius:8px;background:var(--card);margin:10px 0}
+details.exp>summary{cursor:pointer;padding:12px 16px;list-style:none;display:flex;align-items:center;gap:10px}
+details.exp>summary::before{content:"\25BE";color:var(--mute);font-size:14px}
+details.exp:not([open])>summary::before{content:"\25B8"}
+details.exp>summary h2{display:inline;margin:0!important;font-size:16px;font-weight:600}
+details.exp>.in{padding:2px 16px 16px}details.exp>.in>p.lead{margin-top:0}
+select.big,#apK,#apH,#mcf{background:var(--soft);border:0;border-radius:8px;color:var(--ink);padding:9px 12px;font:inherit}
+.gi input{background:var(--soft);border:0;border-radius:8px;color:var(--ink)}
+#drop{border-radius:8px}
+.chip,.tabs button{border-radius:8px}
 </style>
 </head>
 <body>
@@ -278,9 +310,9 @@ function whs(){const keys=Object.keys(D.dos),W=Object.entries(D.whs).map(([k,v])
 function orig(){const e=Object.entries(D.origin).filter(([k,v])=>v.Total&&v.Total.eur>0);$('origwrap').style.display=e.length?'':'none';
   $('orig').innerHTML=e.map(([k,v])=>{const keys=Object.keys(v).filter(x=>/^(DOS|MOS) /.test(x)),t=v.Total.eur,s=(v[D.slowKey]?v[D.slowKey].eur:0)/t;return `<div class="card"><b>${k}</b> <span class="pill">${nf.format(v.Total.sku)} articoli</span><div class="kpi"><div class="v" style="font-size:26px">${money(t)}</div><div class="n">${D.slowKey}: ${pf.format(s)} · scaduto ${money(v.Expired||0)}</div></div>${bandRows(v,keys)}</div>`}).join('')}
 const T={
- slow:{n:'Lenti',h:['Codice','Articolo','Valore',''],r:()=>D.slow.slice(0,10).map(x=>[x.no,x.desc,m(x.eur),nf.format(x.dos)+(D.metric==='DOS'?' gg':' mesi')])},
- eo:{n:'E&O da svalutare',h:['Codice','Articolo','Svalutazione'],r:()=>D.eo_top.slice(0,10).map(x=>[x.no,x.desc,x.lcy/D.meta.fx*(cur==='EUR'?1:D.meta.fx)])},
- exp:{n:'Scaduto',h:['Codice','Articolo','Valore scaduto','Fornitore'],r:()=>D.exp_top.slice(0,10).map(x=>[x.no,x.desc,m(x.eur),x.v1])},
+ slow:{n:'Lenti',h:['Codice','Articolo','Magazzino','Valore','','Andamento vendite'],r:()=>D.slow.slice(0,10).map(x=>[x.no,x.desc,whTxt(x),m(x.eur),nf.format(x.dos)+(D.metric==='DOS'?' gg':' mesi'),spark(x)])},
+ eo:{n:'E&O da svalutare',h:['Codice','Articolo','Magazzino','Svalutazione'],r:()=>D.eo_top.slice(0,10).map(x=>[x.no,x.desc,whTxt(IX().get(x.no)),x.lcy/D.meta.fx*(cur==='EUR'?1:D.meta.fx)])},
+ exp:{n:'Scaduto',h:['Codice','Articolo','Magazzino','Valore scaduto','Fornitore'],r:()=>D.exp_top.slice(0,10).map(x=>[x.no,x.desc,expWh(IX().get(x.no)),m(x.eur),x.v1])},
  lot:{n:'Lotti in scadenza',h:['Codice','Articolo','Magazzino','Scade','Valore'],r:()=>D.lots_top.slice(0,10).map(x=>[x.no,x.desc,x.loc,fdate(x.exp)+' ('+x.days+' gg)',m(x.eur)])}};
 function table(){const t=T[tab],rows=t.r();$('tbl').innerHTML=`<table><tr>${t.h.map((h,i)=>`<th class="${typeof(rows[0]||[])[i]==='number'?'n':''}">${h}</th>`).join('')}</tr>${rows.map(r=>`<tr class="go" data-no="${r[0]}">${r.map(c=>`<td class="${typeof c==='number'?'n':''}">${typeof c==='number'?nf.format(c)+' '+sym():c}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=5>Niente da segnalare</td></tr>'}</table>`;
   document.querySelectorAll('#tbl tr.go').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
@@ -293,7 +325,7 @@ function render(){alerts();kpis();hist();comp();dosb();whs();orig();tabs();table
 /* ---------- ricerca e scheda articolo ---------- */
 $('q').oninput=()=>{const q=norm($('q').value);const box=$('sres');if(q.length<2||!D){box.style.display='none';return}
   const w=q.split(' ');const r=D.items.filter(o=>{const s=norm(o.no+' '+o.old+' '+o.desc);return w.every(x=>s.includes(x))}).sort((a,b)=>b.eur-a.eur).slice(0,10);
-  box.innerHTML=r.map(o=>`<div data-no="${o.no}"><span><b>${o.no}</b> ${o.desc}</span><small>${money(o.eur)}</small></div>`).join('')||'<div style="cursor:default">Nessun articolo trovato</div>';box.style.display='block';
+  box.innerHTML=r.map(o=>`<div data-no="${o.no}"><span><b>${o.no}</b> ${o.desc}</span><small>${Object.keys(o.wh).join(', ')||'–'} · ${money(o.eur)}</small></div>`).join('')||'<div style="cursor:default">Nessun articolo trovato</div>';box.style.display='block';
   box.querySelectorAll('div[data-no]').forEach(d=>d.onclick=()=>{box.style.display='none';card(d.dataset.no)})};
 document.addEventListener('click',e=>{if(!e.target.closest('.search'))$('sres').style.display='none'});
 function card(no){const o=D.items.find(x=>x.no===no);if(!o)return;const mx=Math.max(1,...o.sales);
@@ -311,15 +343,18 @@ function card(no){const o=D.items.find(x=>x.no===no);if(!o)return;const mx=Math.
 $('mx').onclick=()=>$('modal').style.display='none';$('modal').onclick=e=>{if(e.target===$('modal'))$('modal').style.display='none'};
 
 /* ---------- analisi per decidere ---------- */
+const whTxt=o=>{const w=Object.entries((o&&o.wh)||{});return w.length?w.sort((a,b)=>b[1].eur-a[1].eur).map(([k,v])=>`<span class="pill" title="${nf.format(v.qty)} pezzi · ${eur(v.eur)}">${k}</span>`).join(' '):'–'};
+const IX=()=>D._ix||(D._ix=new Map(D.items.map(o=>[o.no,o])));
+const expWh=o=>{const s=new Set(((o&&o.lots)||[]).filter(l=>l.days<=0&&D.physical.includes(l.loc)).map(l=>l.loc));return [...s].map(k=>`<span class="pill">${k}</span>`).join(' ')||'–'};
 const rateOf=(o,k)=>{const a=(o.sales||[]).slice(-k);return a.length?a.reduce((x,y)=>x+y,0)/a.length/30:0};
 let anaTab='risk';
 function analyse(){const k=+$('apK').value,tgt=+$('apT').value||90,hor=+$('apH').value,buf=+$('apB').value||0,phys=new Set(D.physical);
-  const R={risk:[],exc:[],out:[],drop:[],riskTot:0,excTot:0,excOpen:0,excOpenN:0,wh:{},ven:new Map,k,tgt,hor,buf};
+  const R={wk:[],risk:[],exc:[],out:[],drop:[],riskTot:0,excTot:0,excOpen:0,excOpenN:0,wh:{},ven:new Map,k,tgt,hor,buf};
   D.physical.forEach(w=>R.wh[w]={risk:0,exc:0});
   for(const o of D.items){if(!Object.keys(o.wh).length)continue;
     const r=rateOf(o,k),rot=o.st==='ROTATION'||o.st==='PARTIAL NEW',perish=!NONPERISH.has((o.sec||'').toUpperCase());
     if(perish&&o.lots&&o.lots.length){let cum=0;const ls=o.lots.filter(l=>l.days>0&&phys.has(l.loc)).sort((a,b)=>a.days-b.days);
-      for(const l of ls){const sell=Math.min(l.qty,Math.max(0,r*(l.days-buf)-cum));cum+=sell;const rq=l.qty-sell;
+      for(const l of ls){const sell=Math.min(l.qty,Math.max(0,r*(l.days-buf)-cum));cum+=sell;const rq=l.qty-sell;if(l.days<=hor&&l.qty>0){const wi=Math.floor((l.days-1)/7),wk=R.wk[wi]||(R.wk[wi]={sell:0,risk:0});wk.sell+=l.eur*sell/l.qty;wk.risk+=l.eur*rq/l.qty}
         if(l.days<=hor&&rq>0.01&&l.qty>0){const v=l.eur*rq/l.qty;R.risk.push({o,l,rq,v});R.riskTot+=v;if(R.wh[l.loc])R.wh[l.loc].risk+=v}}}
     if(rot&&o.eur>0&&o.qty>0){const dos=r>0?o.qty/r:99999;
       if(dos>tgt){const ex=r>0?o.eur*(1-tgt/dos):o.eur;if(ex>1){R.exc.push({o,ex,dos});R.excTot+=ex;if(!o.blk){R.excOpen+=ex;R.excOpenN++}
@@ -329,7 +364,7 @@ function analyse(){const k=+$('apK').value,tgt=+$('apT').value||90,hor=+$('apH')
       const s=o.sales||[];if(s.length>=6){const a=s.slice(-3).reduce((x,y)=>x+y,0),b=s.slice(-6,-3).reduce((x,y)=>x+y,0);if(b>0&&a<b*0.5&&dos>180)R.drop.push({o,ch:a/b-1,dos})}}}
   R.risk.sort((a,b)=>b.v-a.v);R.exc.sort((a,b)=>b.ex-a.ex);R.out.sort((a,b)=>b.ms-a.ms);R.drop.sort((a,b)=>b.o.eur-a.o.eur);R.vend=[...R.ven.values()].sort((a,b)=>b.ex-a.ex);
   const all=D.items.filter(o=>Object.keys(o.wh).length&&o.eur>0).sort((a,b)=>b.eur-a.eur),tot=all.reduce((a,b)=>a+b.eur,0);let c=0,n80=0;for(const o of all){c+=o.eur;n80++;if(c>=tot*.8)break}
-  R.par={n:all.length,n80};return R}
+  R.par={n:all.length,n80};R.cum=[];{let cc=0;const st=Math.max(1,Math.floor(all.length/40));all.forEach((o,i)=>{cc+=o.eur;if(i%st===0||i===all.length-1)R.cum.push([(i+1)/all.length,cc/tot])})}return R}
 const gdos=d=>d>=99999?'nessuna vendita':nf.format(d)+' gg';
 function mk(heads,al,rows){return `<table><tr>${heads.map((h,i)=>`<th class="${al[i]||''}">${h}</th>`).join('')}</tr>${rows.map(r=>`<tr class="go" data-no="${r[0]}">${r.slice(1).map((c,i)=>`<td class="${al[i]||''}">${c}</td>`).join('')}</tr>`).join('')||'<tr><td colspan=8>Niente da segnalare con queste ipotesi.</td></tr>'}</table>`}
 function anaRender(){if(!D)return;const R=analyse(),tot=D.tot_eur,ex=Object.entries(D.expired_by_loc).sort((a,b)=>b[1]-a[1]);
@@ -351,12 +386,12 @@ const ANAT={risk:'Lotti a rischio',exc:'Eccesso di stock',out:'Da riordinare',dr
 function anaTabs(R){$('anaT').innerHTML=Object.entries(ANAT).map(([k,v])=>`<button class="${k===anaTab?'on':''}" data-k="${k}">${v}</button>`).join('');$('anaT').querySelectorAll('button').forEach(b=>b.onclick=()=>{anaTab=b.dataset.k;anaTabs(R);anaTable(R)})}
 function anaTable(R){let h='';const e=x=>money(x);
   if(anaTab==='risk')h=mk(['Articolo','Magazzino','Scade','Pezzi a rischio','Valore','Azione'],['','','','n','n',''],R.risk.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.loc,x.l.days+' gg ('+fdate(x.l.exp)+')',nf.format(x.rq),e(x.v),x.l.days<=30?'Vendi ora: sconto o reso':x.l.days<=60?'Promuovi o trasferisci':'Pianifica una promozione']));
-  else if(anaTab==='exc')h=mk(['Articolo','Fornitore','Stock','Copertura','Eccesso','Acquisti'],['','','n','n','n',''],R.exc.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.o.vendor||'',e(x.o.eur),gdos(x.dos),e(x.ex),x.o.blk?'bloccati':'<b class="up">aperti</b>']));
-  else if(anaTab==='out')h=mk(['Articolo','Stock','Copertura','Vendite al mese','Acquisti'],['','n','n','n',''],R.out.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,e(x.o.eur),nf.format(x.dos)+' gg',e(x.ms),x.o.blk?'<b class="up">bloccati: sostituire?</b>':'aperti']));
-  else if(anaTab==='drop')h=mk(['Articolo','Stock','Copertura','Vendite 3 mesi vs prima'],['','n','n','n'],R.drop.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,e(x.o.eur),gdos(x.dos),'<b class="up">'+pf.format(x.ch)+'</b>']));
+  else if(anaTab==='exc')h=mk(['Articolo','Magazzino','Fornitore','Stock','Copertura','Andamento vendite','Eccesso','Acquisti'],['','','','n','n','','n',''],R.exc.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),x.o.vendor||'',e(x.o.eur),gdos(x.dos),spark(x.o),e(x.ex),x.o.blk?'bloccati':'<b class="up">aperti</b>']));
+  else if(anaTab==='out')h=mk(['Articolo','Magazzino','Stock','Copertura','Andamento vendite','Vendite al mese','Acquisti'],['','','n','n','','n',''],R.out.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),nf.format(x.dos)+' gg',spark(x.o),e(x.ms),x.o.blk?'<b class="up">bloccati: sostituire?</b>':'aperti']));
+  else if(anaTab==='drop')h=mk(['Articolo','Magazzino','Stock','Copertura','Andamento vendite','Vendite 3 mesi vs prima'],['','','n','n','','n'],R.drop.slice(0,25).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),gdos(x.dos),spark(x.o),'<b class="up">'+pf.format(x.ch)+'</b>']));
   else if(anaTab==='ven')h=`<table><tr><th>Fornitore</th><th class="n">Articoli</th><th class="n">Eccesso</th><th class="n">% eccesso</th><th class="n">Di cui acquisti aperti</th></tr>${R.vend.slice(0,20).map(x=>`<tr><td>${x.v}</td><td class="n">${x.n}</td><td class="n">${e(x.ex)}</td><td class="n">${pf.format(R.excTot?x.ex/R.excTot:0)}</td><td class="n">${e(x.open)}</td></tr>`).join('')}</table>`;
   else if(anaTab==='wh')h=`<table><tr><th>Magazzino</th><th class="n">Stock</th><th class="n">Scaduto</th><th class="n">Lotti a rischio</th><th class="n">Eccesso</th></tr>${D.physical.map(w=>({w,s:(D.whs[w]&&D.whs[w].Total)?D.whs[w].Total.eur:0,x:(D.whs[w]&&D.whs[w].Expired)||0,r:R.wh[w].risk,c:R.wh[w].exc})).sort((a,b)=>(b.x+b.r+b.c)-(a.x+a.r+a.c)).map(x=>`<tr><td><b>${x.w}</b></td><td class="n">${e(x.s)}</td><td class="n">${e(x.x)}</td><td class="n">${e(x.r)}</td><td class="n">${e(x.c)}</td></tr>`).join('')}</table>`;
-  else h=mk(['Articolo','Fornitore','Valore scaduto'],['','','n'],D.exp_top.slice(0,25).map(x=>[x.no,`<b>${x.no}</b> ${x.desc}`,x.v1,e(x.eur)]));
+  else h=mk(['Articolo','Magazzino','Fornitore','Valore scaduto'],['','','','n'],D.exp_top.slice(0,25).map(x=>[x.no,`<b>${x.no}</b> ${x.desc}`,expWh(IX().get(x.no)),x.v1,e(x.eur)]));
   $('anaTbl').innerHTML=h;$('anaTbl').querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
 
 /* ---------- gruppi di articoli ---------- */
@@ -387,7 +422,7 @@ function groupHTML(arr,title,save){const s=gstats(arr),slowK=D.slowKey;
   return `<div class="crumb"><b>${title}</b><span class="pill">${s.n} articoli</span>${FL.filter(f=>s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</div>
   <div class="grid k6"><div class="card kpi"><div class="l">Stock</div><div class="v" style="font-size:24px">${money(s.eur)}</div></div><div class="card kpi"><div class="l">Copertura gruppo</div><div class="v" style="font-size:24px">${dtxt(s.dos)}</div></div><div class="card kpi"><div class="l">Scaduto</div><div class="v" style="font-size:24px">${money(s.exp)}</div></div><div class="card kpi"><div class="l">E&O</div><div class="v" style="font-size:24px">${money(s.eo)}</div></div></div>${msg}
   ${save?`<div class="gi" style="margin:10px 0"><input id="gname" placeholder="Nome del gruppo" value="${title.replace(/"/g,'')}"><button class="btn2" id="gsv">Salva gruppo</button></div>`:''}
-  <table><tr><th>Codice</th><th>Articolo</th><th>Fornitore</th><th>Tipo</th><th class="n">Stock</th><th class="n">Copertura</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${o.vendor||''}</td><td>${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${o.dos?nf.format(o.dos)+(D.metric==='DOS'?' gg':' mesi'):'–'}</td><td>${o.blk?'<span class="flag">bloccato</span>':''}</td></tr>`).join('')}</table>${arr.length>40?`<div class="foot">Mostrati i primi 40 per valore.</div>`:''}`}
+  <table><tr><th>Codice</th><th>Articolo</th><th>Magazzino</th><th>Fornitore</th><th>Tipo</th><th class="n">Stock</th><th class="n">Copertura</th><th>Andamento</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td>${o.vendor||''}</td><td>${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${o.dos?nf.format(o.dos)+(D.metric==='DOS'?' gg':' mesi'):'–'}</td><td>${spark(o)}</td><td>${o.blk?'<span class="flag">bloccato</span>':''}</td></tr>`).join('')}</table>${arr.length>40?`<div class="foot">Mostrati i primi 40 per valore.</div>`:''}`}
 function bindRows(root){root.querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
 function explorer(){const base=pool().filter(o=>path.every(t=>has(o,t)));
   const cnt=new Map;base.forEach(o=>toks(o).forEach(t=>{if(path.includes(t)||!okTok(t,path.length>0))return;const c=cnt.get(t)||{n:0,e:0};c.n++;c.e+=o.eur;cnt.set(t,c)}));
@@ -461,6 +496,40 @@ dz.addEventListener('drop',e=>{const fs=[...e.dataTransfer.files];if(fs.length)l
 $('again').onclick=()=>{$('app').style.display='none';$('ana').style.display='none';$('grp').style.display='none';$('nav').style.display='none';$('up').style.display='';$('again').style.display='none';$('msg').textContent='';archive()};
 $('bEUR').onclick=()=>{cur='EUR';$('bEUR').classList.add('on');$('bLC').classList.remove('on');render()};
 $('bLC').onclick=()=>{cur='LC';$('bLC').classList.add('on');$('bEUR').classList.remove('on');render()};
+/* ---------- grafici ---------- */
+function spark(o){const s=o.sales||[];if(s.length<2)return '–';const mx=Math.max(1,...s),w=84,h=22,st=w/(s.length-1),pts=s.map((v,i)=>(i*st).toFixed(1)+','+(h-2-(h-4)*v/mx).toFixed(1)).join(' ');return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}"><title>Vendite degli ultimi ${s.length} mesi</title><polyline points="${pts}" fill="none" stroke="var(--orange)" stroke-width="1.6"/></svg>`}
+const axv=v=>{const x=m(v);return x>=1e6?(x/1e6).toFixed(1).replace('.',',')+' M':x>=1e3?Math.round(x/1e3)+' k':String(Math.round(x))};
+function donut(parts,tot){const Rr=70,C=2*Math.PI*Rr;let off=0;const s=parts.map(p=>{const len=C*p.v/tot,e=`<circle r="${Rr}" cx="90" cy="90" fill="none" stroke="${p.c}" stroke-width="26" stroke-dasharray="${len} ${C-len}" stroke-dashoffset="${-off}" transform="rotate(-90 90 90)"><title>${p.l}: ${pf.format(p.v/tot)} · ${money(p.v)}</title></circle>`;off+=len;return e}).join('');
+  return `<svg viewBox="0 0 180 180" width="180" height="180" style="flex:none">${s}<text x="90" y="85" text-anchor="middle" font-size="12" fill="var(--mute)">Stock</text><text x="90" y="105" text-anchor="middle" font-size="17" font-weight="700" fill="currentColor">${money(tot)}</text></svg>`}
+function svgCols(data,colors,names,every){const W=660,H=200,pl=44,pb=24,pt=8,n=Math.max(1,data.length),gap=(W-pl-8)/n,bw=gap*.7,mx=Math.max(1,...data.map(d=>d.s.reduce((a,b)=>a+b,0)));let g='';
+  for(let t=0;t<=4;t++){const y=pt+(H-pb-pt)*(1-t/4);g+=`<line x1="${pl}" x2="${W-8}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${pl-6}" y="${y+4}" text-anchor="end" font-size="10" fill="var(--mute)">${axv(mx*t/4)}</text>`}
+  data.forEach((d,i)=>{let y=H-pb;const x=pl+gap*i+(gap-bw)/2;d.s.forEach((v,k)=>{const h=(H-pb-pt)*v/mx;y-=h;g+=`<rect x="${x}" y="${y}" width="${bw}" height="${Math.max(h,0)}" fill="${colors[k]}" rx="2"><title>${d.l}: ${names[k]} ${money(v)}</title></rect>`});if(i%every===0)g+=`<text x="${x+bw/2}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--mute)">${d.l}</text>`});
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg>`}
+function pareto(cum){const W=330,H=190,pl=34,pb=24,pt=8,X=x=>pl+(W-pl-8)*x,Y=y=>pt+(H-pb-pt)*(1-y);let g='';[0,.25,.5,.75,1].forEach(t=>{g+=`<line x1="${pl}" x2="${W-8}" y1="${Y(t)}" y2="${Y(t)}" stroke="var(--line)"/><text x="${pl-5}" y="${Y(t)+4}" text-anchor="end" font-size="10" fill="var(--mute)">${Math.round(t*100)}%</text><text x="${X(t)}" y="${H-8}" text-anchor="middle" font-size="10" fill="var(--mute)">${Math.round(t*100)}%</text>`});
+  const pts=[[0,0]].concat(cum).map(p=>`${X(p[0])},${Y(p[1])}`).join(' ');const c80=cum.find(p=>p[1]>=.8)||[1,1];
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}<polyline points="${pts}" fill="none" stroke="var(--orange)" stroke-width="2.5"/><line x1="${X(c80[0])}" x2="${X(c80[0])}" y1="${Y(.8)}" y2="${Y(0)}" stroke="var(--mute)" stroke-dasharray="4 3"/><circle cx="${X(c80[0])}" cy="${Y(.8)}" r="4" fill="var(--orange)"/><text x="${X(c80[0])+8}" y="${Y(.8)+16}" font-size="11" fill="currentColor">${Math.round(c80[0]*100)}% degli articoli = 80% del valore</text></svg>`}
+function chartsRiep(){const tot=D.tot_eur,oth=Object.values(D.other).reduce((a,b)=>a+b,0);
+  const p=Object.entries(D.cats).filter(x=>x[1].eur>0).map(([k,v])=>({l:plab[k],v:v.eur,c:pcol[k]})).concat(oth>0?[{l:plab.OTHER,v:oth,c:pcol.OTHER}]:[]);
+  $('comp').innerHTML=`<div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">${donut(p,tot)}<div class="leg" style="flex-direction:column;gap:6px;margin:0">${p.map(x=>`<span><s style="background:${x.c}"></s>${x.l} <b>${pf.format(x.v/tot)}</b> · ${money(x.v)}</span>`).join('')}</div></div>`;
+  const old=$('chExp');if(old)old.remove();const ex=Object.entries(D.expired_by_loc).filter(x=>x[1]>0).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  if(ex.length){const mx=ex[0][1];const c=document.createElement('div');c.id='chExp';c.className='card';c.innerHTML=`<b>Scaduto per location</b><div style="margin-top:8px">${ex.map(([k,v])=>`<div class="row"><span>${k}</span><div class="t"><i style="width:${v/mx*100}%;background:#b03a2e"></i></div><span class="r">${money(v)}</span></div>`).join('')}</div>`;$('comp').closest('.grid').appendChild(c)}}
+function chartsAna(){const R=analyse(),old=$('chAna');if(old)old.remove();
+  const wk=[];for(let i=0;i<Math.ceil(R.hor/7);i++){const w=R.wk[i]||{sell:0,risk:0};wk.push({l:String(i*7+7)+' gg',s:[w.sell,w.risk]})}
+  const W=D.physical.map(w=>({w,x:(D.whs[w]&&D.whs[w].Expired)||0,r:R.wh[w].risk,c:R.wh[w].exc})).map(x=>({...x,t:x.x+x.r+x.c})).filter(x=>x.t>0).sort((a,b)=>b.t-a.t),mx=Math.max(1,...W.map(x=>x.t));
+  const c=document.createElement('div');c.id='chAna';c.className='grid c2';c.style.marginTop='14px';
+  c.innerHTML=`<div class="card"><b>Quanto scade nelle prossime settimane</b><div style="color:var(--mute);font-size:13px">Valore dei lotti per scadenza: verde si vende in tempo, rosso no.</div>${svgCols(wk,['#2e7d32','#b03a2e'],['si vende','non si vende'],Math.max(1,Math.round(wk.length/8)))}<div class="leg"><span><s style="background:#2e7d32"></s>Si vende in tempo</span><span><s style="background:#b03a2e"></s>Non si vende in tempo</span></div></div>
+  <div class="card"><b>Dove agire, per magazzino</b><div style="margin-top:10px">${W.map(x=>`<div class="row" style="grid-template-columns:90px 1fr 90px"><span>${x.w}</span><div class="t" style="display:flex"><i style="width:${x.x/mx*100}%;background:#6b4a45"></i><i style="width:${x.r/mx*100}%;background:#b03a2e"></i><i style="width:${x.c/mx*100}%;background:#e0893f"></i></div><span class="r">${money(x.t)}</span></div>`).join('')||'<div class="empty">Niente da segnalare.</div>'}</div><div class="leg"><span><s style="background:#6b4a45"></s>Scaduto</span><span><s style="background:#b03a2e"></s>Lotti a rischio</span><span><s style="background:#e0893f"></s>Eccesso</span></div></div>
+  <div class="card"><b>Concentrazione dello stock</b><div style="color:var(--mute);font-size:13px">Quanti articoli fanno il valore: più la curva sale in fretta, più è concentrato.</div>${pareto(R.cum)}</div>`;
+  $('anaK').insertAdjacentElement('afterend',c)}
+function chartCard(no){const o=D.items.find(x=>x.no===no),sp=document.querySelector('#mbody .sp12');if(!o||!sp)return;const s=o.sales||[];if(!s.length)return;
+  const W=560,H=150,pl=38,pb=20,pt=8,mx=Math.max(1,...s),avg=s.reduce((a,b)=>a+b,0)/s.length,gap=(W-pl-6)/s.length,bw=gap*.7,Y=v=>pt+(H-pb-pt)*(1-v/mx);
+  let g=[0,.5,1].map(t=>`<line x1="${pl}" x2="${W-6}" y1="${Y(mx*t)}" y2="${Y(mx*t)}" stroke="var(--line)"/><text x="${pl-5}" y="${Y(mx*t)+4}" text-anchor="end" font-size="10" fill="var(--mute)">${nf.format(mx*t)}</text>`).join('');
+  s.forEach((v,i)=>{const x=pl+gap*i+(gap-bw)/2;g+=`<rect x="${x}" y="${Y(v)}" width="${bw}" height="${H-pb-Y(v)}" fill="var(--orange)" rx="2"><title>${nf.format(v)}</title></rect><text x="${x+bw/2}" y="${H-6}" text-anchor="middle" font-size="9" fill="var(--mute)">-${s.length-i}</text>`});
+  g+=`<line x1="${pl}" x2="${W-6}" y1="${Y(avg)}" y2="${Y(avg)}" stroke="currentColor" stroke-dasharray="5 4"/><text x="${W-8}" y="${Y(avg)-4}" text-anchor="end" font-size="10" fill="currentColor">media ${nf.format(avg)}/mese</text>`;
+  sp.outerHTML=`<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto">${g}</svg><div style="color:var(--mute);font-size:12px">Mesi fa (da -${s.length} a -1)</div>`}
+{const _r=render;render=function(){_r();chartsRiep()};const _a=anaRender;anaRender=function(){_a();if(D)chartsAna()};const _c=card;card=function(no){_c(no);chartCard(no)}}
+function expandify(sec){let det=null,body=null;[...sec.children].forEach(k=>{if(k.tagName==='H2'){det=document.createElement('details');det.className='exp';det.open=true;const s=document.createElement('summary');s.appendChild(k);det.appendChild(s);body=document.createElement('div');body.className='in';det.appendChild(body);sec.appendChild(det)}else if(det)body.appendChild(k)})}
+['app','ana','grp'].forEach(i=>expandify($(i)));
 </script>
 </body>
 </html>
