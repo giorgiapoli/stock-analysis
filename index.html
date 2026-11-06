@@ -599,7 +599,7 @@ function enhance(tb){if(tb.dataset.sortable||tb.rows.length<3)return;tb.dataset.
       const body=hr.parentNode;rows.forEach(x=>body.appendChild(x.r))}})}
 let _sortT=null;new MutationObserver(()=>{clearTimeout(_sortT);_sortT=setTimeout(()=>document.querySelectorAll('main table:not([data-sortable])').forEach(enhance),30)}).observe(document.querySelector('main'),{childList:true,subtree:true});
 function expandify(sec,nOpen){let det=null,body=null,cnt=0;[...sec.children].forEach(el=>{if(el.tagName==='H2'){det=document.createElement('details');det.className='exp';det.open=(nOpen==null||cnt++<nOpen);const s=document.createElement('summary');s.appendChild(el);det.appendChild(s);body=document.createElement('div');body.className='in';det.appendChild(body);sec.appendChild(det)}else if(det)body.appendChild(el)})}
-expandify($('app'),2);expandify($('ana'));expandify($('bev'));expandify($('grp'),2);
+['app','ana','bev','grp'].forEach(i=>expandify($(i),0));
 </script>
 </body>
 </html>
