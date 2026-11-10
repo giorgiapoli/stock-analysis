@@ -93,10 +93,12 @@ select.big,#apK,#apH,#mcf{background:var(--soft);border:0;border-radius:8px;colo
 #helpbub .av{flex:none;width:36px;height:36px;border-radius:50%;background:#1a9e8f;display:grid;place-items:center}
 #helpbub .who{font-size:10.5px;letter-spacing:.07em;color:#1a9e8f;font-weight:700;text-transform:uppercase}#helpbub .ht{font-weight:700;margin:2px 0 3px}#helpbub .hd{font-size:13.5px;color:var(--mute);line-height:1.35}
 body.less .xc{display:none}
+td.n,th.n,.kpi .v,.tile .tv,td .pill{white-space:nowrap}
 .tile{font:inherit;text-align:left;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:var(--ink)}
 .tile .tl{font-size:13px;color:var(--mute);font-weight:600}.tile .tv{font-size:26px;font-weight:600;margin:4px 0 2px;white-space:nowrap}.tile .tn{font-size:13px;color:var(--mute)}
 .tile:hover{border-color:#0F766E}.tile.on{background:#E6F4F1;border:2px solid #0F766E;color:#1F2937}.tile.on .tl{color:#0B5D56;font-weight:700}.tile.on .tn{color:#4B5563}
 #again{background:#0f766e!important;color:#fff!important;border:0!important;font-weight:700;padding:9px 18px;border-radius:8px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.15)}#again:hover{background:#0b5d56!important}.grid.k6{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.k6 .kpi .v{font-size:26px}@media (max-width:760px){.grid.k6{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));grid-auto-columns:auto}}.hbtn input{margin-right:6px}
+tr.frow td{padding:3px 6px;border-bottom:1px solid var(--line);background:var(--card)}input.cf{width:100%;min-width:64px;box-sizing:border-box;font:inherit;font-size:12px;padding:4px 7px;border:1px solid var(--line);border-radius:6px;background:var(--soft);color:var(--ink)}input.cf::placeholder{color:var(--mute);opacity:.7}
 th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.sa{font-size:10px;margin-left:4px;color:var(--orange)}
 </style>
 </head>
@@ -278,8 +280,8 @@ function remember(R){const h=hload(),k=R.meta.sub;h[k]=h[k]||{};h[k][R.meta.ref]
 
 /* ---------- formati ---------- */
 const m=e=>cur==='EUR'?e:e*D.meta.fx,sym=()=>cur==='EUR'?'€':D.meta.cur;
-const money=e=>{let v=m(e);if(Math.abs(v)<0.5)v=0;const a=Math.abs(v);if(a>=1e6)return (v/1e6).toLocaleString('en-GB',{maximumFractionDigits:2})+' M '+sym();if(a>=1e4)return nf.format(v/1e3)+' k '+sym();return nf.format(v)+' '+sym()};
-const eur=e=>nf.format(Math.abs(m(e))<0.5?0:m(e))+' '+sym();
+const money=e=>{let v=m(e);if(Math.abs(v)<0.5)v=0;const a=Math.abs(v);if(a>=1e6)return (v/1e6).toLocaleString('en-GB',{maximumFractionDigits:2})+'\u00a0M\u00a0'+sym();if(a>=1e4)return nf.format(v/1e3)+'\u00a0k\u00a0'+sym();return nf.format(v)+'\u00a0'+sym()};
+const eur=e=>nf.format(Math.abs(m(e))<0.5?0:m(e))+'\u00a0'+sym();
 const dcol=['#2e7d32','#7bb661','#e3c04a','#e0893f','#b03a2e','#7a2a22'];
 const lbl=k=>D.metric==='DOS'?k.replace('DOS ','')+' days':k.replace('MOS ','')+' months';
 
@@ -408,22 +410,22 @@ function dosTab(){const bands=Object.keys(D.dos),it=pool().filter(o=>o.cat);
   const rowsB=bands.map((k,i)=>{const a=it.filter(o=>o.cat===k);return {k,i,n:a.length,v:a.reduce((s,o)=>s+o.eur,0),ex:a.reduce((s,o)=>s+o.exp,0)}}),tot=rowsB.reduce((s,r)=>s+r.v,0)||1;
   let h=`<div class="chips"><button class="chip" data-band="ALL">All bands</button>${bands.map(k=>`<button class="chip" data-band="${k}" ${actBand===k?'style="border-color:var(--orange)"':''}>${lbl(k)}</button>`).join('')}</div>`;
   h+=`<table><tr><th>DOS band</th><th class="n">Items</th><th class="n">Stock</th><th class="n">% of stock</th><th class="n">Expired</th></tr>${rowsB.map(r=>`<tr data-band="${r.k}" style="cursor:pointer"><td><s style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dcol[r.i]};margin-right:6px"></s>${lbl(r.k)}</td><td class="n">${nf.format(r.n)}</td><td class="n">${money(r.v)}</td><td class="n">${pf.format(r.v/tot)}</td><td class="n">${money(r.ex)}</td></tr>`).join('')}</table>`;
-  if(actBand){const a=it.filter(o=>o.cat===actBand).sort((x,y)=>y.eur-x.eur).slice(0,40);const u=D.metric==='DOS'?' days':' months';
-    h+=`<div style="margin:14px 0 6px;color:var(--mute)">Items in band ${lbl(actBand)} (top 40 by value)</div>`+mk(['Item','Warehouse','Stock','DOS 12m','DOS 6m','DOS 3m','Purchases'],['','','n','n','n','n',''],a.map(o=>[o.no,`<b>${o.no}</b> ${o.desc}`,whTxt(o),eur(o.eur),o.dos?nf.format(o.dos)+u:'–',o.dos6?nf.format(o.dos6)+u:'–',o.dos3?nf.format(o.dos3)+u:'–',o.blk?'blocked':'open']))}
+  if(actBand){const a=it.filter(o=>o.cat===actBand).sort((x,y)=>y.eur-x.eur).slice(0,500);const u=D.metric==='DOS'?' days':' months';
+    h+=`<div style="margin:14px 0 6px;color:var(--mute)">Items in band ${lbl(actBand)} (top 500 by value)</div>`+mk(['Item','Warehouse','Stock','DOS 12m','DOS 6m','DOS 3m','Purchases'],['','','n','n','n','n',''],a.map(o=>[o.no,`<b>${o.no}</b> ${o.desc}`,whTxt(o),eur(o.eur),o.dos?nf.format(o.dos)+u:'–',o.dos6?nf.format(o.dos6)+u:'–',o.dos3?nf.format(o.dos3)+u:'–',o.blk?'blocked':'open']))}
   else h+='<div class="empty" style="margin-top:12px">Click a band to list its items with DOS 12 / 6 / 3 months.</div>';
   return h}
 function actList(R){const e=x=>money(x);let t='',d='',h='';
   if(actTab==='promote'){t='Urgent products to promote';d='Lots that will not sell before they expire. Days left are counted from today, so the list changes every day.';
     let rows=R.promote;if(actWeek!=null)rows=rows.filter(x=>x.wi===actWeek);
-    h=(actWeek!=null?`<button class="chip" id="wkclr" style="margin-bottom:8px">Week ${actWeek*7+1}–${actWeek*7+7} days ✕</button>`:'')+mk(['Item','Lot','Warehouse','Expires','Days left','Pieces at risk','Value at risk','Per day: now → needed'],['','','','','n','n','n','n'],rows.slice(0,40).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.lot||'–',x.l.loc,fdate(x.l.exp),dlPill(x.d),nf.format(x.rq),e(x.v),f1(x.now)+' → '+f1(x.need)]))+`<div class="foot">Showing ${Math.min(40,rows.length)} of ${rows.length} lots, sorted by days left.</div>`}
+    h=(actWeek!=null?`<button class="chip" id="wkclr" style="margin-bottom:8px">Week ${actWeek*7+1}–${actWeek*7+7} days ✕</button>`:'')+mk(['Item','Lot','Warehouse','Expires','Days left','Pieces at risk','Value at risk','Per day: now → needed'],['','','','','n','n','n','n'],rows.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.lot||'–',x.l.loc,fdate(x.l.exp),dlPill(x.d),nf.format(x.rq),e(x.v),f1(x.now)+' → '+f1(x.need)]))+`<div class="foot">Showing ${Math.min(500,rows.length)} of ${rows.length} lots, sorted by days left.</div>`}
   else if(actTab==='expired'){t='Expired lots to close';d='Lots whose expiry date has passed, counted from today.';
-    h=mk(['Item','Lot','Warehouse','Expired on','Value'],['','','','','n'],R.expired.slice(0,40).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.lot||'–',x.l.loc,fdate(x.l.exp),e(x.v)]))+`<div class="foot">Showing ${Math.min(40,R.expired.length)} of ${R.expired.length} lots, by value.</div>`}
+    h=mk(['Item','Lot','Warehouse','Expired on','Value'],['','','','','n'],R.expired.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.lot||'–',x.l.loc,fdate(x.l.exp),e(x.v)]))+`<div class="foot">Showing ${Math.min(500,R.expired.length)} of ${R.expired.length} lots, by value.</div>`}
   else if(actTab==='exc'){t='Excess stock: stop buying';d='Items with more stock than the target DOS of their warehouse.';
-    h=mk(['Item','Warehouse','Stock','DOS','Excess','Purchases'],['','','n','n','n',''],R.exc.slice(0,40).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),e(x.ex),x.o.blk?'blocked':'<b class="up">open</b>']))+`<div class="foot">Showing ${Math.min(40,R.exc.length)} of ${R.exc.length} items, by excess value.</div>`}
+    h=mk(['Item','Warehouse','Stock','DOS','Excess','Purchases'],['','','n','n','n',''],R.exc.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),e(x.ex),x.o.blk?'blocked':'<b class="up">open</b>']))+`<div class="foot">Showing ${Math.min(500,R.exc.length)} of ${R.exc.length} items, by excess value.</div>`}
   else if(actTab==='out'){t='Items to reorder';d='Items with less than 15 days of stock at the recent sales pace.';
-    h=mk(['Item','Warehouse','Stock','DOS','Sales per month','Purchases'],['','','n','n','n',''],R.out.slice(0,40).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),e(x.ms),x.o.blk?'<b class="up">blocked: replace?</b>':'open']))+`<div class="foot">Showing ${Math.min(40,R.out.length)} of ${R.out.length} items, by monthly sales.</div>`}
+    h=mk(['Item','Warehouse','Stock','DOS','Sales per month','Purchases'],['','','n','n','n',''],R.out.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),e(x.ms),x.o.blk?'<b class="up">blocked: replace?</b>':'open']))+`<div class="foot">Showing ${Math.min(500,R.out.length)} of ${R.out.length} items, by monthly sales.</div>`}
   else if(actTab==='rep'){t='Products to replace, or already replaced';d='Items whose sales moved to another code, or that are blocked for purchase and will not clear on their own.';
-    h=mk(['Item','Warehouse','Stock','DOS','Status','Suggested action'],['','','n','n','',''],R.rep.slice(0,40).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),x.st==='rep'?`<span class="pill" style="background:#DDF1EE;color:#0B5D56;font-weight:600">Replaced by ${x.by}</span>`:'<span class="pill" style="background:#FDE8E6;color:#A12A1E;font-weight:600">Blocked, no replacement</span>',x.st==='rep'?'Sell off the remaining stock: promote or transfer':'Decide: sell off, or find a replacement']))+`<div class="foot">Replaced = the same product (same mastercode) now sells under another code. Showing ${Math.min(40,R.rep.length)} of ${R.rep.length} items.</div>`}
+    h=mk(['Item','Warehouse','Stock','DOS','Status','Suggested action'],['','','n','n','',''],R.rep.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),x.st==='rep'?`<span class="pill" style="background:#DDF1EE;color:#0B5D56;font-weight:600">Replaced by ${x.by}</span>`:'<span class="pill" style="background:#FDE8E6;color:#A12A1E;font-weight:600">Blocked, no replacement</span>',x.st==='rep'?'Sell off the remaining stock: promote or transfer':'Decide: sell off, or find a replacement']))+`<div class="foot">Replaced = the same product (same mastercode) now sells under another code. Showing ${Math.min(500,R.rep.length)} of ${R.rep.length} items.</div>`}
   else{t='Items by DOS band';d='Click a band to see its items.';h=dosTab()}
   $('anaMain').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between"><div><div style="font-size:20px;font-weight:700">${t}</div><div style="color:var(--mute);margin:2px 0 12px">${d}</div></div>${actTab==='promote'||actTab==='exc'?'<a href="#" id="toPar" style="font-weight:600;text-decoration:none;color:#0F766E">Parameters per warehouse ›</a>':''}</div>${h}`;
   $('anaMain').querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no));
@@ -468,7 +470,7 @@ function macroRender(id,list,cats,label,perish){
   const draw=()=>{const q=norm($(id+'Q').value),w=q.split(' ').filter(Boolean);
     $(id+'Tabs').innerHTML=[['ALL','All']].concat(list).filter(x=>x[0]==='ALL'||items.some(o=>(o.sec||'').toUpperCase()===x[0])).map(([k,l])=>`<button class="${k===st.tab?'on':''}" data-k="${k}">${l}</button>`).join('');
     $(id+'Tabs').querySelectorAll('button').forEach(b=>b.onclick=()=>{st.tab=b.dataset.k;draw()});
-    const rows=items.filter(o=>(st.tab==='ALL'||(o.sec||'').toUpperCase()===st.tab)&&w.every(x=>norm(o.no+' '+o.desc).includes(x))).sort((a,b)=>b.eur-a.eur).slice(0,40),u=D.metric==='DOS'?' days':' months';
+    const rows=items.filter(o=>(st.tab==='ALL'||(o.sec||'').toUpperCase()===st.tab)&&w.every(x=>norm(o.no+' '+o.desc).includes(x))).sort((a,b)=>b.eur-a.eur).slice(0,500),u=D.metric==='DOS'?' days':' months';
     const heads=['Code','Description'].concat(st.tab==='ALL'?['Category']:[]).concat(['Stock','DOS','Sales trend','Band']).concat(perish?['Expired','Next expiry']:[]);
     const al=['',''].concat(st.tab==='ALL'?['']:[]).concat(['n','n','','']).concat(perish?['n','']:[]);
     const nm=Object.fromEntries(list);
@@ -501,11 +503,11 @@ function groupHTML(arr,title,save){const s=gstats(arr),slowK=D.slowKey;
   let msg='';
   if(arr.length>1&&falseSlow.length)msg=`<div class="card alert amber" style="margin:10px 0"><i class="dot"></i><div><b>${falseSlow.length} items look slow, but the group is rotating</b><span>${money(fsEur)} look stuck on their own, but the coverage of the group is ${dtxt(s.dos)}: sales moved to another code.</span></div></div>`;
   else if(s.dos>=360)msg=`<div class="card alert red" style="margin:10px 0"><i class="dot"></i><div><b>The whole group is slow (${dtxt(s.dos)})</b><span>It is not a problem of codes: the product sells little.</span></div></div>`;
-  const rows=arr.slice().sort((a,b)=>b.eur-a.eur).slice(0,40);
+  const rows=arr.slice().sort((a,b)=>b.eur-a.eur).slice(0,500);
   return `<div class="crumb"><b>${title}</b><span class="pill">${s.n} items</span>${FL.filter(f=>s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</div>
   <div class="grid k6"><div class="card kpi"><div class="l">Stock</div><div class="v" style="font-size:24px">${money(s.eur)}</div></div><div class="card kpi"><div class="l">Group DOS</div><div class="v" style="font-size:24px">${dtxt(s.dos)}</div></div><div class="card kpi"><div class="l">Expired</div><div class="v" style="font-size:24px">${money(s.exp)}</div></div><div class="card kpi"><div class="l">E&O</div><div class="v" style="font-size:24px">${money(s.eo)}</div></div></div>${msg}
   ${save?`<div class="gi" style="margin:10px 0"><input id="gname" placeholder="Group name" value="${title.replace(/"/g,'')}"><button class="btn2" id="gsv">Save group</button></div>`:''}
-  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${dosTxt(o)}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>40?`<div class="foot">Showing the top 40 by value.</div>`:''}`}
+  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${dosTxt(o)}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>500?`<div class="foot">Showing the top 500 by value.</div>`:''}`}
 function bindRows(root){root.querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
 function explorer(){const base=pool().filter(o=>path.every(t=>has(o,t)));
   const cnt=new Map;base.forEach(o=>toks(o).forEach(t=>{if(path.includes(t)||!okTok(t,path.length>0))return;const c=cnt.get(t)||{n:0,e:0};c.n++;c.e+=o.eur;cnt.set(t,c)}));
@@ -561,7 +563,7 @@ async function idbDel(k){try{const db=await idb();db.transaction('f','readwrite'
 const sameD=(d,x)=>x&&d.meta.sub===x.meta.sub&&d.meta.ref===x.meta.ref;
 function bySub(){const by={};Object.keys(LOADED).forEach(k=>{const d=LOADED[k];(by[d.meta.sub]=by[d.meta.sub]||[]).push(d)});for(const s in by)by[s].sort((a,b)=>b.meta.ref.localeCompare(a.meta.ref));return by}
 function filSel(){const s=$('fil');s.innerHTML='';const by=bySub();Object.keys(by).sort().forEach(sub=>{const g=document.createElement('optgroup');g.label=sub;by[sub].forEach(d=>{const o=document.createElement('option');o.value=d.meta.sub+'|'+d.meta.ref;o.textContent=monthLbl(d.meta.ref);if(sameD(d,D))o.selected=true;g.appendChild(o)});s.appendChild(g)});$('filw').style.display=Object.keys(LOADED).length?'':'none'}
-const kfmt=e=>e>=1e6?(e/1e6).toLocaleString('en-GB',{maximumFractionDigits:2})+' M €':nf.format(e/1e3)+' k €';
+const kfmt=e=>e>=1e6?(e/1e6).toLocaleString('en-GB',{maximumFractionDigits:2})+'\u00a0M\u00a0€':nf.format(e/1e3)+'\u00a0k\u00a0€';
 function archive(){const by=bySub(),subs=Object.keys(by).sort();$('steps').style.display=subs.length?'none':'';
   $('arch').innerHTML=subs.map(s=>{const L=by[s];return `<div class="card" style="margin-top:14px"><div class="gi" style="justify-content:space-between"><div><b style="font-size:20px">${s}</b> <span class="pill">${L.length} ${L.length===1?'month':'months'} · ${L[0].meta.cur}</span></div><button class="chip" data-up="1">+ Upload a new month</button></div>
   <table style="margin-top:8px"><tr><th>Month</th><th class="n">Stock</th><th class="n">Expired</th><th class="n">E&O</th><th></th></tr>${L.map(d=>{const k=d.meta.sub+'|'+d.meta.ref;return `<tr><td><b>${monthLbl(d.meta.ref)}</b> <small style="color:var(--mute)">data as of ${fdate(d.meta.ref)}</small></td><td class="n">${kfmt(d.tot_eur)}</td><td class="n">${pf.format(d.expired_eur/d.tot_eur)}</td><td class="n">${kfmt(d.eo_total_lcy/d.meta.fx)}</td><td class="n"><button class="chip" data-o="${k}">Open</button> <button class="chip" data-x="${k}">Delete</button></td></tr>`}).join('')}</table></div>`}).join('');
@@ -609,10 +611,16 @@ function sv(td){const s=td.textContent.trim();if(!s||s==='–')return null;let m
   if(/^no sales/i.test(s))return 1e12;
   m=/^[▲▼\s]*([+\-]?)\s*([\d,]*\.?\d+)\s*(k|M)?\b/.exec(s);if(m){let v=parseFloat(m[2].replace(/,/g,''));if(m[1]==='-')v=-v;if(m[3]==='k')v*=1e3;if(m[3]==='M')v*=1e6;return v}
   return s.toLowerCase()}
+function cellMatch(td,f){const s=td.textContent.trim(),m=/^(>=|<=|>|<|=)\s*(-?[\d.,]+)/.exec(f);
+  if(m){const v=sv(td);if(typeof v!=='number')return false;const x=parseFloat(m[2].replace(/,/g,''));return m[1]==='>'?v>x:m[1]==='<'?v<x:m[1]==='>='?v>=x:m[1]==='<='?v<=x:v===x}
+  return s.toLowerCase().includes(f.toLowerCase())}
+function applyFilters(tb){const inp=[...tb.querySelectorAll('tr.frow input')],act=inp.filter(i=>i.value.trim());
+  [...tb.rows].slice(1).filter(r=>!r.classList.contains('frow')).forEach(r=>{r.style.display=act.every(i=>cellMatch(r.cells[+i.dataset.c]||{textContent:''},i.value.trim()))?'':'none'})}
 function enhance(tb){if(tb.dataset.sortable||tb.rows.length<3)return;tb.dataset.sortable='1';const hr=tb.rows[0];
+  {const fr=tb.insertRow(1);fr.className='frow';[...hr.cells].forEach((th,ci)=>{const c=fr.insertCell();c.className=th.className.replace('sortable','');const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;const i=document.createElement('input');i.className='cf';i.dataset.c=ci;i.placeholder='filter';i.setAttribute('aria-label','Filter '+tx);i.oninput=()=>applyFilters(tb);c.appendChild(i)})}
   [...hr.cells].forEach((th,ci)=>{const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;th.classList.add('sortable');
     th.onclick=()=>{const dir=th.dataset.dir==='asc'?'desc':'asc';[...hr.cells].forEach(c=>{c.dataset.dir='';const a=c.querySelector('.sa');if(a)a.remove()});th.dataset.dir=dir;th.insertAdjacentHTML('beforeend','<span class="sa">'+(dir==='asc'?'▲':'▼')+'</span>');
-      const rows=[...tb.rows].slice(1).map((r,i)=>({r,i,v:sv(r.cells[ci]||{textContent:''})}));
+      const rows=[...tb.rows].slice(1).filter(r=>!r.classList.contains('frow')).map((r,i)=>({r,i,v:sv(r.cells[ci]||{textContent:''})}));
       rows.sort((a,b)=>{if(a.v===null&&b.v===null)return a.i-b.i;if(a.v===null)return 1;if(b.v===null)return -1;const c=typeof a.v==='number'&&typeof b.v==='number'?a.v-b.v:String(a.v).localeCompare(String(b.v),'en',{numeric:true});return (dir==='asc'?c:-c)||a.i-b.i});
       const body=hr.parentNode;rows.forEach(x=>body.appendChild(x.r))}})}
 let _sortT=null;new MutationObserver(()=>{clearTimeout(_sortT);_sortT=setTimeout(()=>document.querySelectorAll('main table:not([data-sortable])').forEach(enhance),30)}).observe(document.querySelector('main'),{childList:true,subtree:true});
