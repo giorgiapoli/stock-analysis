@@ -105,7 +105,6 @@ th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.
   <div class="sp"></div>
   <label id="filw" style="display:none;color:#b9c7d6;font-size:13px">Branch and month <select id="fil" class="hbtn" style="margin-left:6px"></select></label>
   <label class="hbtn" style="cursor:pointer" title=""><input type="checkbox" id="helpon" checked>Assistant</label>
-  <label class="hbtn" id="morew" style="display:none;cursor:pointer"><input type="checkbox" id="more">More columns</label>
   <div class="seg" id="cur" style="display:none"><button id="bEUR" class="on">EUR</button><button id="bLC">LC</button></div>
   <button class="hbtn" id="again" style="display:none">File archive</button>
 </header>
@@ -545,14 +544,13 @@ function archive(){const by=bySub(),subs=Object.keys(by).sort();$('steps').style
   $('arch').querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{const k=b.dataset.x,d=LOADED[k];if(!d||!confirm('Delete '+d.meta.sub+' · '+monthLbl(d.meta.ref)+' from the archive?'))return;delete LOADED[k];idbDel(k);const h=hload();if(h[d.meta.sub]){delete h[d.meta.sub][d.meta.ref];hsave(h)}if(sameD(d,D))D=null;filSel();archive()})}
 async function loadMany(fs){let last=null;for(let i=0;i<fs.length;i++){if(fs.length>1)$('msg').textContent='File '+(i+1)+' of '+fs.length+'…';const d=await load(fs[i],true);if(d)last=d}if(last)show(last)}
 function show(d){D=d;cur='EUR';$('bEUR').classList.add('on');$('bLC').classList.remove('on');
-  path=[];$('up').style.display='none';$('again').style.display='';$('nav').style.display='';$('morew').style.display='';$('q').disabled=false;$('modal').style.display='none';filSel();render();showView('app')}
+  path=[];$('up').style.display='none';$('again').style.display='';$('nav').style.display='';$('q').disabled=false;$('modal').style.display='none';filSel();render();showView('app')}
 $('fil').onchange=()=>{const d=LOADED[$('fil').value];if(d)show(d)};
 idbAll().then(o=>{let last=null,t=0;for(const k in o){if(o[k]&&o[k].d){const d=o[k].d;LOADED[d.meta.sub+'|'+d.meta.ref]=d;if(o[k].t>t){t=o[k].t;last=d}}}if(last&&!D)show(last);else if(!D)archive()});
 $('pick').onclick=()=>$('file').click();$('file').onchange=e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)loadMany(fs)};
 const dz=$('drop');['dragenter','dragover'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.add('over')}));['dragleave','drop'].forEach(t=>dz.addEventListener(t,e=>{e.preventDefault();dz.classList.remove('over')}));
 dz.addEventListener('drop',e=>{const fs=[...e.dataTransfer.files];if(fs.length)loadMany(fs)});
 $('again').onclick=()=>{$('app').style.display='none';$('ana').style.display='none';$('bev').style.display='none';$('grp').style.display='none';$('nav').style.display='none';$('up').style.display='';$('again').style.display='none';$('msg').textContent='';archive()};
-$('more').onchange=()=>{document.body.classList.toggle('less',!$('more').checked);try{localStorage.setItem('sa_more',$('more').checked?'1':'0')}catch(e){}};try{if(localStorage.getItem('sa_more')==='1'){$('more').checked=true;document.body.classList.remove('less')}}catch(e){}
 $('bEUR').onclick=()=>{cur='EUR';$('bEUR').classList.add('on');$('bLC').classList.remove('on');render()};
 $('bLC').onclick=()=>{cur='LC';$('bLC').classList.add('on');$('bEUR').classList.remove('on');render()};
 /* ---------- grafici ---------- */
@@ -610,7 +608,6 @@ hh('summary','Summary','The overview of the file: what to look at first, key num
 hh('analysis','Analysis','What to do, in what order and how much it is worth: decisions, charts and the detail behind them.');
 hh('beverage & non-food','Beverage & Non-food','Wine, spirits, beer, soft drinks and non-food, kept apart from the rotation stock.');
 hh('groups · advanced','Groups (advanced)','Groups items that are the same product under different codes (mastercode or words in the description) to see the real coverage of the product.');
-hh('more columns','More columns','Show or hide the secondary columns of the tables (supplier, sales trend, DOS where hidden...).');
 hh('assistant','Assistant','These short notes appear when you rest the pointer on something. Untick to switch them off.');
 hh(['eur','hkd','lc','pln','aud'],'Currency','Show the values in euro or in the local currency of the branch.');
 hh('file archive','File archive','Upload files, or switch between the branches and months already uploaded on this computer.');
