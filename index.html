@@ -89,6 +89,9 @@ select.big,#apK,#apH,#mcf{background:var(--soft);border:0;border-radius:8px;colo
 .gi input{background:var(--soft);border:0;border-radius:8px;color:var(--ink)}
 #drop{border-radius:8px}
 .chip,.tabs button{border-radius:8px}
+#helpbub{position:fixed;z-index:80;display:none;max-width:310px;background:var(--card);color:var(--ink);border:1px solid #7cc5bd;border-radius:14px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.18);pointer-events:none;gap:10px}
+#helpbub .av{flex:none;width:36px;height:36px;border-radius:50%;background:#1a9e8f;display:grid;place-items:center}
+#helpbub .who{font-size:10.5px;letter-spacing:.07em;color:#1a9e8f;font-weight:700;text-transform:uppercase}#helpbub .ht{font-weight:700;margin:2px 0 3px}#helpbub .hd{font-size:13.5px;color:var(--mute);line-height:1.35}
 body.less .xc{display:none}.grid.k6{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr)}.k6 .kpi .v{font-size:26px}@media (max-width:760px){.grid.k6{grid-auto-flow:row;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));grid-auto-columns:auto}}.hbtn input{margin-right:6px}
 th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.sa{font-size:10px;margin-left:4px;color:var(--orange)}
 </style>
@@ -101,6 +104,7 @@ th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.
   <div class="seg" id="nav" style="display:none"><button id="navA" class="on">Summary</button><button id="navN">Analysis</button><button id="navB">Beverage &amp; Non-food</button><button id="navG">Groups · advanced</button></div>
   <div class="sp"></div>
   <label id="filw" style="display:none;color:#b9c7d6;font-size:13px">Branch and month <select id="fil" class="hbtn" style="margin-left:6px"></select></label>
+  <label class="hbtn" style="cursor:pointer" title=""><input type="checkbox" id="helpon" checked>Assistant</label>
   <label class="hbtn" id="morew" style="display:none;cursor:pointer"><input type="checkbox" id="more">More columns</label>
   <div class="seg" id="cur" style="display:none"><button id="bEUR" class="on">EUR</button><button id="bLC">LC</button></div>
   <button class="hbtn" id="again" style="display:none">File archive</button>
@@ -166,6 +170,7 @@ th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.
     <h2>By mastercode</h2><p class="lead" id="mclead"></p><div class="card" id="mct"></div>
   </section>
 </main>
+<div id="helpbub"></div>
 <div id="modal"><div class="box"><button class="x" id="mx">×</button><div id="mbody"></div></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js" onerror="var s=document.createElement('script');s.src='xlsx.full.min.js';document.head.appendChild(s)"></script>
@@ -592,12 +597,133 @@ function sv(td){const s=td.textContent.trim();if(!s||s==='–')return null;let m
   m=/^[▲▼\s]*([+\-]?)\s*([\d,]*\.?\d+)\s*(k|M)?\b/.exec(s);if(m){let v=parseFloat(m[2].replace(/,/g,''));if(m[1]==='-')v=-v;if(m[3]==='k')v*=1e3;if(m[3]==='M')v*=1e6;return v}
   return s.toLowerCase()}
 function enhance(tb){if(tb.dataset.sortable||tb.rows.length<3)return;tb.dataset.sortable='1';const hr=tb.rows[0];
-  [...hr.cells].forEach((th,ci)=>{const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;th.classList.add('sortable');th.title='Click to sort';
+  [...hr.cells].forEach((th,ci)=>{const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;th.classList.add('sortable');
     th.onclick=()=>{const dir=th.dataset.dir==='asc'?'desc':'asc';[...hr.cells].forEach(c=>{c.dataset.dir='';const a=c.querySelector('.sa');if(a)a.remove()});th.dataset.dir=dir;th.insertAdjacentHTML('beforeend','<span class="sa">'+(dir==='asc'?'▲':'▼')+'</span>');
       const rows=[...tb.rows].slice(1).map((r,i)=>({r,i,v:sv(r.cells[ci]||{textContent:''})}));
       rows.sort((a,b)=>{if(a.v===null&&b.v===null)return a.i-b.i;if(a.v===null)return 1;if(b.v===null)return -1;const c=typeof a.v==='number'&&typeof b.v==='number'?a.v-b.v:String(a.v).localeCompare(String(b.v),'en',{numeric:true});return (dir==='asc'?c:-c)||a.i-b.i});
       const body=hr.parentNode;rows.forEach(x=>body.appendChild(x.r))}})}
 let _sortT=null;new MutationObserver(()=>{clearTimeout(_sortT);_sortT=setTimeout(()=>document.querySelectorAll('main table:not([data-sortable])').forEach(enhance),30)}).observe(document.querySelector('main'),{childList:true,subtree:true});
+/* ---------- assistant: short explanations on hover (not intrusive) ---------- */
+const HELP={};
+const hh=(keys,title,text)=>[].concat(keys).forEach(k=>HELP[k]=[title,text]);
+hh('summary','Summary','The overview of the file: what to look at first, key numbers, composition and warehouses.');
+hh('analysis','Analysis','What to do, in what order and how much it is worth: decisions, charts and the detail behind them.');
+hh('beverage & non-food','Beverage & Non-food','Wine, spirits, beer, soft drinks and non-food, kept apart from the rotation stock.');
+hh('groups · advanced','Groups (advanced)','Groups items that are the same product under different codes (mastercode or words in the description) to see the real coverage of the product.');
+hh('more columns','More columns','Show or hide the secondary columns of the tables (supplier, sales trend, DOS where hidden...).');
+hh('assistant','Assistant','These short notes appear when you rest the pointer on something. Untick to switch them off.');
+hh(['eur','hkd','lc','pln','aud'],'Currency','Show the values in euro or in the local currency of the branch.');
+hh('file archive','File archive','Upload files, or switch between the branches and months already uploaded on this computer.');
+hh('branch and month','Branch and month','Choose which uploaded file to look at.');
+hh('search','Search','Type a code or a name to find an item and open its card.');
+// key numbers
+hh('total stock','Total stock','All the stock in the file, every location, as in the RECAP total.');
+hh('rotation stock','Rotation stock','Stock of items that sell regularly in the physical warehouses. New items and the beverage and non-food categories are kept out: they have their own page.');
+hh('new (outside rotation)','New items','Items too new to have a sales history: kept out of the rotation analysis.');
+hh(['expired','already expired'],'Expired','Value of the lots whose expiry date is on or before the reference date of the file (not today). Lots in location PERDIDA are not counted.');
+hh('e&o to write down','E&O','Excess & Obsolete: part of the stock proposed for write-down because it will not sell before it expires, or is already expired. Calculated lot by lot in the file, with the write-down % set in INPUT.');
+hh('lots at risk','Lots at risk','Lots not expected to sell before they expire (minus the margin), if future sales equal the recent average. Lots sell in expiry order (FEFO). It is an estimate to decide, not the official E&O.');
+hh('excess stock','Excess stock','Stock above the target coverage (90 days by default). Excess = value × (1 − target ÷ current DOS).');
+hh('you can act on','You can act on','Already expired + lots at risk + excess stock. The same item can be in more than one group, so read it as the size of the opportunity, not as an exact total.');
+hh('concentration','Concentration','How many items make up 80% of the stock value: the fewer, the more concentrated the stock.');
+hh('items with mastercode','Mastercode','How many items with stock have a mastercode: the code that ties together the same product sold under different item codes.');
+hh('without mastercode','Without mastercode','Items with stock that have no mastercode: they cannot be grouped automatically.');
+hh('groups with several codes','Groups','Mastercodes that gather more than one item code.');
+hh(['different uom','fresh and frozen together','dry and fresh together','different transport','different suppliers','different category','stock on a blocked item'],'Anomaly in a group','Items grouped under the same mastercode that differ in this respect: worth checking that they really are the same product.');
+hh('group dos','Group DOS','Coverage of the whole group: total stock ÷ total monthly sales of all its codes.');
+// table columns
+hh('dos','DOS','Days Of Stock: how many days the stock lasts at the average sales pace of the last 12 months. The label shows the band (0-30, 30-90, 90-180, 180-360, 360+ days). Higher means slower.');
+hh('coverage','Coverage','DOS band of the item in that warehouse.');
+hh('excess','Excess','Value of the stock above the target coverage.');
+hh('purchases','Purchases','"blocked" means the item cannot be ordered any more; "open" means orders can still be placed.');
+hh(['sales trend','trend'],'Sales trend','Sales of the last 12 months, oldest on the left. The dashed line in the item card is the monthly average.');
+hh('lot','Lot','Lot number as it appears in the file.');
+hh('pieces at risk','Pieces at risk','Pieces of this lot that are not expected to sell before it expires.');
+hh(['expires','expiry'],'Expires','Expiry date of the lot and days left from the reference date of the file.');
+hh('expired on','Expired on','Expiry date of the lot.');
+hh('warehouse','Warehouse','Where the stock is. Hover a label to see pieces and value in that warehouse.');
+hh('supplier','Supplier','Main supplier of the item, from the warehouse sheets.');
+hh(['stock','value'],'Stock value','Value of the stock, in the currency chosen at the top.');
+hh('expired value','Expired value','Value of the lot or item that is already expired.');
+hh('write-down','Write-down','Value proposed for write-down by the E&O calculation.');
+hh('sales per month','Sales per month','Average monthly sales, in value, at the selected pace.');
+hh('sales last 3 months vs before','Falling sales','Sales of the last 3 months compared with the 3 months before.');
+hh('outcome','Outcome','Whether the lot is expected to sell in time, or how many pieces are at risk.');
+hh('% of excess','% of excess','Share of the total excess stock that comes from this supplier.');
+hh('of which open purchases','Open purchases','Part of the excess on items that can still be ordered.');
+hh('band','Band','DOS band of the item.');
+hh('next expiry','Next expiry','Date of the first lot to expire.');
+hh('category','Category','Wine, spirits, beer, soft drinks or the non-food section.');
+hh('% of stock','% of stock','Share of the total stock value.');
+hh('items','Items','Number of items.');
+// tabs
+hh('lots','Lots','Lots with number, warehouse and expiry: at risk, already expired, or expiring in the week you clicked on the chart.');
+hh('to reorder','To reorder','Items with less than 15 days of coverage at the selected pace: they will run out soon.');
+hh('falling sales','Falling sales','Items whose last 3 months of sales are less than half of the previous 3, while the stock is high: they may become slow.');
+hh('breakdown','Breakdown','Excess stock by supplier, and what to act on by warehouse.');
+hh('at risk','At risk','Lots expected not to sell before they expire.');
+hh('selected week','Selected week','Lots expiring in the week you clicked on the chart.');
+hh('suppliers','Suppliers','Which suppliers hold the most excess stock.');
+hh('warehouses','Warehouses','Expired, at risk and excess value for each warehouse.');
+hh('all bands','All bands','Show every DOS band.');
+hh('slow','Slow','Items with the highest coverage (DOS above 360 days), by value.');
+hh('lots expiring','Lots expiring','Lots that expire soonest among the perishable goods.');
+// chart / card titles
+hh('stock by dos band','Stock by DOS band','Stock value by days of coverage. Click a band to see its items.');
+hh('what expires in the coming weeks','Expiring lots','Value of the lots by expiry week. Green sells in time, red does not. Click a bar for the lots.');
+hh('where to act, by warehouse','Where to act','Expired, lots at risk and excess value for each warehouse.');
+hh('stock concentration','Stock concentration','The faster the curve rises, the fewer items make up most of the value.');
+hh('stock composition','Stock composition','Share of the stock by category.');
+hh('expired by location','Expired by location','Where the expired stock is.');
+hh('stock trend','Stock trend','Total stock of each month uploaded for this branch.');
+// settings labels
+hh('sales pace','Sales pace','Months of sales used to estimate future sales in the Analysis.');
+hh('target coverage','Target coverage','Days of coverage you consider right. Stock above it counts as excess.');
+hh('lots expiring within','Horizon','How far ahead lots are checked for risk.');
+hh('margin before expiry','Margin','Days before expiry in which a lot can no longer be sold.');
+// sections
+hh('what the file says','What the file says','The main points of this file in plain words.');
+hh('key numbers','Key numbers','The totals that matter most.');
+hh('what changed since last month','What changed','Comparison with the previous month uploaded for the same branch.');
+hh('what the stock is made of','Composition','Stock by category and where the expired stock sits.');
+hh('warehouse by warehouse','Warehouses','Stock, DOS bands and expired value for each warehouse.');
+hh('local and import','LOCAL and IMPORT','Slow stock by origin: bought locally, imported from IFB, or imported from other suppliers.');
+hh('to look at first','To look at first','The biggest items to check. Click a row to open the item card.');
+hh('decisions to take','Decisions','The actions that matter most, in order of value. Click one to see the items.');
+hh('detail','Detail','The tables behind the decisions.');
+hh('settings: assumptions used for the estimates','Settings','Assumptions used for the estimates: sales pace, target coverage, horizon and margin.');
+hh('item groups','Item groups','Same product, several codes.');
+hh('explore by product','Explore by product','Pick a word to group items, refine it and save the group.');
+hh('by mastercode','By mastercode','Groups already defined in the file by mastercode, with their anomalies.');
+const hk=s=>norm(s).replace(/[▲▼]/g,'').replace(/\s*\(\d[\d,.]*\)\s*$/,'').replace(/\s+/g,' ').trim();
+function hLook(t){let k;
+  if(t.matches('.kpi')){const l=t.querySelector('.l');k=hk(l?l.textContent:'')}
+  else if(t.id==='q')k='search';
+  else if(t.matches('label')&&t.id!=='filw'&&!t.classList.contains('hbtn')){const n=[...t.childNodes].find(x=>x.nodeType===3);k=hk(n?n.textContent:'')}
+  else if(t.matches('summary'))k=hk(t.textContent);
+  else if(t.matches('th'))k=hk(t.textContent);
+  else k=hk(t.textContent);
+  let h=HELP[k];
+  if(!h&&/^(\d+(-\d+)?\+?)\s*(days|months)$/.test(k))h=['DOS band','Show the items whose DOS falls in this band.'];
+  if(!h&&/^(dos|mos) \d/.test(k))h=['Slow stock','Share of the rotation stock with more than 360 days (DOS) of coverage.'];
+  if(!h)return null;
+  return {k,t:h[0],d:h[1]+(t.matches('th.sortable')?' Click to sort.':'')}}
+let hT=null,hEl=null,hHide=null;
+const hSeen=()=>{try{return JSON.parse(localStorage.getItem('sa_help_seen')||'{}')}catch(e){return {}}};
+function hClear(){clearTimeout(hT);clearTimeout(hHide);$('helpbub').style.display='none'}
+function hShow(t,h,n){const b=$('helpbub');b.innerHTML=`<div class="av"><svg width="22" height="22" viewBox="0 0 22 22"><circle cx="8" cy="9" r="1.6" fill="#fff"/><circle cx="14" cy="9" r="1.6" fill="#fff"/><path d="M6 13.5c1.2 2 3 3 5 3s3.8-1 5-3" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/></svg></div><div><div class="who">Stock Analysis assistant</div><div class="ht">${h.t}</div><div class="hd">${h.d}</div></div>`;
+  b.style.display='flex';const r=t.getBoundingClientRect(),w=b.offsetWidth,bh=b.offsetHeight;
+  let x=Math.min(Math.max(8,r.left),innerWidth-w-8),y=r.bottom+8;if(y+bh>innerHeight-8)y=Math.max(8,r.top-bh-8);
+  b.style.left=x+'px';b.style.top=y+'px';
+  const s=hSeen();s[h.k]=(s[h.k]||0)+1;try{localStorage.setItem('sa_help_seen',JSON.stringify(s))}catch(e){}
+  hHide=setTimeout(hClear,9000)}
+function hFind(el){return el&&el.closest?el.closest('th,.kpi,.card>b,.tabs button,#nav button,.chip,.hbtn,.seg button,summary,#q,#filw,.gi label'):null}
+document.addEventListener('mouseover',e=>{const t=hFind(e.target);if(t===hEl)return;hClear();hEl=t;if(!t||!$('helpon').checked)return;const h=hLook(t);if(!h)return;const n=hSeen()[h.k]||0;hT=setTimeout(()=>hShow(t,h,n),n<2?650:1800)});
+document.addEventListener('mouseout',e=>{if(!hEl||(e.relatedTarget&&hEl.contains(e.relatedTarget)))return;hClear();hEl=null});
+['mousedown','keydown','wheel'].forEach(ev=>document.addEventListener(ev,hClear,true));
+window.addEventListener('scroll',hClear,true);
+try{if(localStorage.getItem('sa_help')==='0')$('helpon').checked=false}catch(e){}
+$('helpon').onchange=()=>{try{localStorage.setItem('sa_help',$('helpon').checked?'1':'0')}catch(e){}hClear()};
 function expandify(sec,nOpen){let det=null,body=null,cnt=0;[...sec.children].forEach(el=>{if(el.tagName==='H2'){det=document.createElement('details');det.className='exp';det.open=(nOpen==null||cnt++<nOpen);const s=document.createElement('summary');s.appendChild(el);det.appendChild(s);body=document.createElement('div');body.className='in';det.appendChild(body);sec.appendChild(det)}else if(det)body.appendChild(el)})}
 ['app','ana','bev','grp'].forEach(i=>expandify($(i),0));
 </script>
