@@ -93,6 +93,8 @@ select.big,#apK,#apH,#mcf{background:var(--soft);border:0;border-radius:8px;colo
 #helpbub .av{flex:none;width:36px;height:36px;border-radius:50%;background:#1a9e8f;display:grid;place-items:center}
 #helpbub .who{font-size:10.5px;letter-spacing:.07em;color:#1a9e8f;font-weight:700;text-transform:uppercase}#helpbub .ht{font-weight:700;margin:2px 0 3px}#helpbub .hd{font-size:13.5px;color:var(--mute);line-height:1.35}
 body.less .xc{display:none}
+.pill.band{display:inline-block;min-width:68px;text-align:center;box-sizing:border-box;margin-left:6px}.pill.dl{display:inline-block;min-width:46px;text-align:center;box-sizing:border-box}
+td.n,th.n{font-variant-numeric:tabular-nums}td,th{vertical-align:middle}th{padding-top:10px;padding-bottom:10px}
 .brand{display:flex;align-items:center;gap:14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:4px 10px 4px 6px;border-radius:12px;text-align:left}.brand:hover,.brand[aria-expanded="true"]{background:var(--soft)}.brand h1{margin:0}
 #wsPanel{position:fixed;left:0;width:300px;bottom:0;z-index:25;background:var(--card);border-right:1px solid var(--line);box-shadow:8px 0 24px rgba(0,0,0,.12);flex-direction:column;padding:14px;box-sizing:border-box}
 #wsPanel .wsh{display:flex;justify-content:space-between;align-items:center;font-size:18px;margin-bottom:10px}#wsClose{border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--mute)}
@@ -371,7 +373,7 @@ $('mx').onclick=()=>$('modal').style.display='none';$('modal').onclick=e=>{if(e.
 const whTxt=o=>{const w=Object.entries((o&&o.wh)||{});return w.length?w.sort((a,b)=>b[1].eur-a[1].eur).map(([k,v])=>`<span class="pill" title="${nf.format(v.qty)} pieces · ${eur(v.eur)}">${k}</span>`).join(' '):'–'};
 const expLots=()=>{const L=D.exp_lots||D.items.flatMap(o=>(o.lots||[]).filter(l=>l.days<=0&&D.physical.includes(l.loc)).map(l=>({no:o.no,desc:o.desc,v1:o.vendor,lot:l.lot,loc:l.loc,exp:l.exp,days:l.days,eur:l.eur})));return L.slice().sort((a,b)=>b.eur-a.eur)};
 const BCOL=[['#DDF1DE','#1B5E20'],['#E8F3D6','#3F6B12'],['#FBF0C6','#7A5A00'],['#FBE1CC','#9A4A00'],['#F6D5D1','#A12A1E']];
-const bandPill=c=>{if(!c)return '–';const i=Object.keys(D.dos).indexOf(c),k=BCOL[Math.max(0,Math.min(BCOL.length-1,i<0?0:i))];return `<span class="pill" style="background:${k[0]};color:${k[1]};font-weight:600">${String(c).replace(/^(DOS|MOS) /,'')}</span>`};
+const bandPill=c=>{if(!c)return '–';const i=Object.keys(D.dos).indexOf(c),k=BCOL[Math.max(0,Math.min(BCOL.length-1,i<0?0:i))];return `<span class="pill band" style="background:${k[0]};color:${k[1]};font-weight:600">${String(c).replace(/^(DOS|MOS) /,'')}</span>`};
 const dosTxt=o=>{if(!o||!o.dos)return '–';return nf.format(o.dos)+(D.metric==='DOS'?' days':' months')+' '+bandPill(o.cat)};
 const IX=()=>D._ix||(D._ix=new Map(D.items.map(o=>[o.no,o])));
 const expWh=o=>{const s=new Set(((o&&o.lots)||[]).filter(l=>l.days<=0&&D.physical.includes(l.loc)).map(l=>l.loc));return [...s].map(k=>`<span class="pill">${k}</span>`).join(' ')||'–'};
@@ -387,7 +389,7 @@ const wpOf=w=>Object.assign({},WPD,wpAll()[D.meta.sub+'|'+w]||{});
 const todayD=()=>{const d=new Date();d.setHours(0,0,0,0);return d};
 const daysTo=s=>Math.round((new Date(s+'T00:00:00')-todayD())/864e5);
 const f1=v=>v>=10?nf.format(v):String(Math.round(v*10)/10);
-const dlPill=d=>{const c=d<=14?['#FDE8E6','#A12A1E']:d<=30?['#FEF0C7','#7A4B00']:['#FFF8DB','#5C4B00'];return `<span class="pill" style="background:${c[0]};color:${c[1]};font-weight:700">${d} d</span>`};
+const dlPill=d=>{const c=d<=14?['#FDE8E6','#A12A1E']:d<=30?['#FEF0C7','#7A4B00']:['#FFF8DB','#5C4B00'];return `<span class="pill dl" style="background:${c[0]};color:${c[1]};font-weight:700">${d} d</span>`};
 function acts(){const k=actPace,phys=new Set(D.physical),wpc={};D.physical.forEach(w=>wpc[w]=wpOf(w));
   const R={promote:[],expired:[],exc:[],out:[],rep:[],wk:[],k,wpc};
   const mcMap=new Map;D.items.forEach(o=>{if(o.mc&&Object.keys(o.wh).length){if(!mcMap.has(o.mc))mcMap.set(o.mc,[]);mcMap.get(o.mc).push(o)}});
