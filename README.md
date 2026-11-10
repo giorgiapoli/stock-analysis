@@ -1,4 +1,4 @@
-# Stock Analysis
+# Stock Analysis Dashboard
 
 Web page to read and analyse the "Stock Analysis" file produced by a branch's Excel macro.
 
