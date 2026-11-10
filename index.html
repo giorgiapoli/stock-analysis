@@ -93,6 +93,7 @@ select.big,#apK,#apH,#mcf{background:var(--soft);border:0;border-radius:8px;colo
 #helpbub .av{flex:none;width:36px;height:36px;border-radius:50%;background:#1a9e8f;display:grid;place-items:center}
 #helpbub .who{font-size:10.5px;letter-spacing:.07em;color:#1a9e8f;font-weight:700;text-transform:uppercase}#helpbub .ht{font-weight:700;margin:2px 0 3px}#helpbub .hd{font-size:13.5px;color:var(--mute);line-height:1.35}
 body.less .xc{display:none}
+.tbar{display:flex;justify-content:flex-end;margin:2px 0 6px}.xl{display:inline-flex;align-items:center;gap:6px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;border:1px solid var(--line);background:var(--card);color:#1D6F42;border-radius:8px;padding:5px 11px}.xl:hover{background:#E8F4EC;border-color:#1D6F42}
 .pill.band{display:inline-block;min-width:68px;text-align:center;box-sizing:border-box;margin-left:6px}.pill.dl{display:inline-block;min-width:46px;text-align:center;box-sizing:border-box}
 td.n,th.n{font-variant-numeric:tabular-nums}td,th{vertical-align:middle}th{padding-top:10px;padding-bottom:10px}
 .brand{display:flex;align-items:center;gap:14px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;padding:4px 10px 4px 6px;border-radius:12px;text-align:left}.brand:hover,.brand[aria-expanded="true"]{background:var(--soft)}.brand h1{margin:0}
@@ -421,12 +422,12 @@ function actRender(){if(!D)return;const R=acts(),sum=(a,f)=>a.reduce((s,x)=>s+f(
 function dosTab(){const bands=Object.keys(D.dos),it=pool().filter(o=>o.cat);
   const rowsB=bands.map((k,i)=>{const a=it.filter(o=>o.cat===k);return {k,i,n:a.length,v:a.reduce((s,o)=>s+o.eur,0),ex:a.reduce((s,o)=>s+o.exp,0)}}),tot=rowsB.reduce((s,r)=>s+r.v,0)||1;
   let h=`<div class="chips"><button class="chip" data-band="ALL">All bands</button>${bands.map(k=>`<button class="chip" data-band="${k}" ${actBand===k?'style="border-color:var(--orange)"':''}>${lbl(k)}</button>`).join('')}</div>`;
-  h+=`<table><tr><th>DOS band</th><th class="n">Items</th><th class="n">Stock</th><th class="n">% of stock</th><th class="n">Expired</th></tr>${rowsB.map(r=>`<tr data-band="${r.k}" style="cursor:pointer"><td><s style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dcol[r.i]};margin-right:6px"></s>${lbl(r.k)}</td><td class="n">${nf.format(r.n)}</td><td class="n">${money(r.v)}</td><td class="n">${pf.format(r.v/tot)}</td><td class="n">${money(r.ex)}</td></tr>`).join('')}</table>`;
+  h+=`<table><tr><th>DOS band</th><th class="n">Items</th><th class="n">Stock</th><th class="n">% of stock</th><th class="n">Expired</th></tr>${rowsB.map(r=>`<tr data-band="${r.k}" style="cursor:pointer"><td><s style="display:inline-block;width:10px;height:10px;border-radius:3px;background:${dcol[r.i]};margin-right:6px"></s>${lbl(r.k)}</td><td class="n">${nf.format(r.n)}</td><td class="n">${monv(r.v)}</td><td class="n">${pf.format(r.v/tot)}</td><td class="n">${monv(r.ex)}</td></tr>`).join('')}</table>`;
   if(actBand){const a=it.filter(o=>o.cat===actBand).sort((x,y)=>y.eur-x.eur).slice(0,500);const u=D.metric==='DOS'?' days':' months';
-    h+=`<div style="margin:14px 0 6px;color:var(--mute)">Items in band ${lbl(actBand)} (top 500 by value)</div>`+mk(['Item','Warehouse','Stock','DOS 12m','DOS 6m','DOS 3m','Purchases'],['','','n','n','n','n',''],a.map(o=>[o.no,`<b>${o.no}</b> ${o.desc}`,whTxt(o),eur(o.eur),o.dos?nf.format(o.dos)+u:'–',o.dos6?nf.format(o.dos6)+u:'–',o.dos3?nf.format(o.dos3)+u:'–',o.blk?'blocked':'open']))}
+    h+=`<div style="margin:14px 0 6px;color:var(--mute)">Items in band ${lbl(actBand)} (top 500 by value)</div>`+mk(['Item','Warehouse','Stock','DOS 12m','DOS 6m','DOS 3m','Purchases'],['','','n','n','n','n',''],a.map(o=>[o.no,`<b>${o.no}</b> ${o.desc}`,whTxt(o),eurv(o.eur),o.dos?nf.format(o.dos)+u:'–',o.dos6?nf.format(o.dos6)+u:'–',o.dos3?nf.format(o.dos3)+u:'–',o.blk?'blocked':'open']))}
   else h+='<div class="empty" style="margin-top:12px">Click a band to list its items with DOS 12 / 6 / 3 months.</div>';
   return h}
-function actList(R){const e=x=>money(x);let t='',d='',h='';
+function actList(R){const e=x=>monv(x);let t='',d='',h='';
   if(actTab==='promote'){t='Urgent products to promote';d='Lots that will not sell before they expire. Days left are counted from today, so the list changes every day.';
     let rows=R.promote;if(actWeek!=null)rows=rows.filter(x=>x.wi===actWeek);
     h=(actWeek!=null?`<button class="chip" id="wkclr" style="margin-bottom:8px">Week ${actWeek*7+1}–${actWeek*7+7} days ✕</button>`:'')+mk(['Item','Lot','Warehouse','Expires','Days left','Pieces at risk','Value at risk','Per day: now → needed'],['','','','','n','n','n','n'],rows.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,x.l.lot||'–',x.l.loc,fdate(x.l.exp),dlPill(x.d),nf.format(x.rq),e(x.v),f1(x.now)+' → '+f1(x.need)]))+`<div class="foot">Showing ${Math.min(500,rows.length)} of ${rows.length} lots, sorted by days left.</div>`}
@@ -488,7 +489,7 @@ function macroRender(id,list,cats,label,perish){
     const heads=['Code','Description'].concat(st.tab==='ALL'?['Category']:[]).concat(['Stock','DOS','Sales trend','Band']).concat(perish?['Expired','Next expiry']:[]);
     const al=['',''].concat(st.tab==='ALL'?['']:[]).concat(['n','n','','']).concat(perish?['n','']:[]);
     const nm=Object.fromEntries(list);
-    $(id+'T').innerHTML=mk(heads,al,rows.map(o=>[o.no,o.no,o.desc].concat(st.tab==='ALL'?[nm[(o.sec||'').toUpperCase()]||o.sec]:[]).concat([eur(o.eur),o.dos?nf.format(o.dos)+u:'–',spark(o),bandPill(o.cat)]).concat(perish?[o.exp>0?eur(o.exp):'–',o.next&&o.next.getFullYear()<2040?fdate(iso(o.next)):'–']:[])),['Sales trend','Next expiry']);
+    $(id+'T').innerHTML=mk(heads,al,rows.map(o=>[o.no,o.no,o.desc].concat(st.tab==='ALL'?[nm[(o.sec||'').toUpperCase()]||o.sec]:[]).concat([eurv(o.eur),o.dos?nf.format(o.dos)+u:'–',spark(o),bandPill(o.cat)]).concat(perish?[o.exp>0?eurv(o.exp):'–',o.next&&o.next.getFullYear()<2040?fdate(iso(o.next)):'–']:[])),['Sales trend','Next expiry']);
     $(id+'T').querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))};
   $(id+'Q').oninput=draw;draw()}
 function bevRender(){if(!D)return;macroRender('bevA',BEVL,['WINE','SPIRITS','BEER','SOFT DRINKS'],'beverage',true);macroRender('bevN',NFL,['NON-FOOD'],'non-food',false)}
@@ -521,7 +522,7 @@ function groupHTML(arr,title,save){const s=gstats(arr),slowK=D.slowKey;
   return `<div class="crumb"><b>${title}</b><span class="pill">${s.n} items</span>${FL.filter(f=>s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</div>
   <div class="grid k6"><div class="card kpi"><div class="l">Stock</div><div class="v" style="font-size:24px">${money(s.eur)}</div></div><div class="card kpi"><div class="l">Group DOS</div><div class="v" style="font-size:24px">${dtxt(s.dos)}</div></div><div class="card kpi"><div class="l">Expired</div><div class="v" style="font-size:24px">${money(s.exp)}</div></div><div class="card kpi"><div class="l">E&O</div><div class="v" style="font-size:24px">${money(s.eo)}</div></div></div>${msg}
   ${save?`<div class="gi" style="margin:10px 0"><input id="gname" placeholder="Group name" value="${title.replace(/"/g,'')}"><button class="btn2" id="gsv">Save group</button></div>`:''}
-  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${dosTxt(o)}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>500?`<div class="foot">Showing the top 500 by value.</div>`:''}`}
+  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eurv(o.eur)}</td><td class="n">${dosTxt(o)}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>500?`<div class="foot">Showing the top 500 by value.</div>`:''}`}
 function bindRows(root){root.querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
 function explorer(){const base=pool().filter(o=>path.every(t=>has(o,t)));
   const cnt=new Map;base.forEach(o=>toks(o).forEach(t=>{if(path.includes(t)||!okTok(t,path.length>0))return;const c=cnt.get(t)||{n:0,e:0};c.n++;c.e+=o.eur;cnt.set(t,c)}));
@@ -550,7 +551,7 @@ function mcPage(){const all=D.items.filter(o=>o.mc&&Object.keys(o.wh).length),ma
   $('mclead').textContent='Groups with more than one code and the anomalies to check. Click a row to see the items.';
   const list=multi.filter(x=>!mcFilter||x.s.f[mcFilter]).sort((a,b)=>b.s.nf-a.s.nf||b.s.eur-a.s.eur).slice(0,30);
   $('mct').innerHTML=`<div class="gi" style="margin-bottom:8px"><select id="mcf"><option value="">All anomalies</option>${FL.map(f=>`<option value="${f[0]}" ${mcFilter===f[0]?'selected':''}>${f[1]} (${cnt[f[0]]})</option>`).join('')}</select></div>
-  <table><tr><th>Mastercode</th><th>Example</th><th class="n">Items</th><th class="n">Stock</th><th class="n">Group DOS</th><th>Anomalies</th></tr>${list.map((x,i)=>`<tr class="go" data-i="${i}"><td>${x.k}</td><td>${x.a[0].desc}</td><td class="n">${x.a.length}</td><td class="n">${eur(x.s.eur)}</td><td class="n">${dtxt(x.s.dos)}</td><td>${FL.filter(f=>x.s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</td></tr>`).join('')}</table>`;
+  <table><tr><th>Mastercode</th><th>Example</th><th class="n">Items</th><th class="n">Stock</th><th class="n">Group DOS</th><th>Anomalies</th></tr>${list.map((x,i)=>`<tr class="go" data-i="${i}"><td>${x.k}</td><td>${x.a[0].desc}</td><td class="n">${x.a.length}</td><td class="n">${eurv(x.s.eur)}</td><td class="n">${dtxt(x.s.dos)}</td><td>${FL.filter(f=>x.s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</td></tr>`).join('')}</table>`;
   $('mcf').onchange=e=>{mcFilter=e.target.value;mcPage()};
   $('mct').querySelectorAll('tr.go[data-i]').forEach(tr=>tr.onclick=()=>{const x=list[+tr.dataset.i];$('mbody').innerHTML=groupHTML(x.a,'Mastercode '+x.k,false);bindRows($('mbody'));$('modal').style.display='block'})}
 function showView(v){$('app').style.display=v==='app'?'':'none';$('ana').style.display=v==='ana'?'':'none';$('grp').style.display=v==='grp'?'':'none';$('bev').style.display=v==='bev'?'':'none';$('navB').classList.toggle('on',v==='bev');$('navA').classList.toggle('on',v==='app');$('navN').classList.toggle('on',v==='ana');$('navG').classList.toggle('on',v==='grp');if(v==='grp'){mcPage();explorer();saved()}if(v==='ana')actRender();if(v==='bev')bevRender();window.scrollTo(0,0)}
@@ -626,12 +627,23 @@ function sv(td){const s=td.textContent.trim();if(!s||s==='–')return null;let m
   if(/^no sales/i.test(s))return 1e12;
   m=/^[▲▼\s]*([+\-]?)\s*([\d,]*\.?\d+)\s*(k|M)?\b/.exec(s);if(m){let v=parseFloat(m[2].replace(/,/g,''));if(m[1]==='-')v=-v;if(m[3]==='k')v*=1e3;if(m[3]==='M')v*=1e6;return v}
   return s.toLowerCase()}
+const XLI='<svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><rect x="1.5" y="1.5" width="13" height="13" rx="2" fill="#1D6F42"/><path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/></svg>';
+const eurv=e=>`<span data-v="${Math.round(m(e)*100)/100}">${eur(e)}</span>`,monv=e=>`<span data-v="${Math.round(m(e)*100)/100}">${money(e)}</span>`;
+function exportTable(tb){if(typeof XLSX==='undefined'){alert('The Excel library is not available (internet needed).');return}
+  const hr=tb.rows[0],cols=[...hr.cells].map((c,i)=>({i,show:getComputedStyle(c).display!=='none',h:c.textContent.replace(/[▲▼]/g,'').trim()})).filter(c=>c.show);
+  const aoa=[cols.map(c=>c.h)];
+  [...tb.rows].slice(1).filter(r=>!r.classList.contains('frow')&&r.style.display!=='none'&&r.cells.length>=cols.length).forEach(r=>aoa.push(cols.map(c=>{const td=r.cells[c.i];if(!td)return '';const dv=td.querySelector('[data-v]');if(dv&&!td.querySelector('.pill'))return +dv.dataset.v;if(td.querySelector('.pill'))return td.textContent.replace(/\s+/g,' ').trim();const s=td.textContent.replace(/\u00a0/g,' ').trim();if(td.classList.contains('n')){const v=sv(td);return typeof v==='number'&&!/^[\d/]+$/.test(s)?v:s}return s})));
+  const ws=XLSX.utils.aoa_to_sheet(aoa);ws['!cols']=cols.map((c,j)=>({wch:Math.min(50,Math.max(c.h.length,...aoa.slice(1,60).map(r=>String(r[j]==null?'':r[j]).length))+2)}));
+  const wb=XLSX.utils.book_new(),ttl=((tb.closest('.card')||tb.parentNode).querySelector('div[style*="font-size:20px"]')||{}).textContent||'Export';
+  XLSX.utils.book_append_sheet(wb,ws,ttl.replace(/[\\/?*\[\]:]/g,' ').slice(0,31).trim()||'Export');
+  XLSX.writeFile(wb,'stock-analysis_'+(D?D.meta.sub:'')+'_'+ttl.replace(/[^\w]+/g,'-').toLowerCase().slice(0,40)+'_'+iso(new Date())+'.xlsx')}
 function cellMatch(td,f){const s=td.textContent.trim(),m=/^(>=|<=|>|<|=)\s*(-?[\d.,]+)/.exec(f);
   if(m){const v=sv(td);if(typeof v!=='number')return false;const x=parseFloat(m[2].replace(/,/g,''));return m[1]==='>'?v>x:m[1]==='<'?v<x:m[1]==='>='?v>=x:m[1]==='<='?v<=x:v===x}
   return s.toLowerCase().includes(f.toLowerCase())}
 function applyFilters(tb){const inp=[...tb.querySelectorAll('tr.frow input')],act=inp.filter(i=>i.value.trim());
   [...tb.rows].slice(1).filter(r=>!r.classList.contains('frow')).forEach(r=>{r.style.display=act.every(i=>cellMatch(r.cells[+i.dataset.c]||{textContent:''},i.value.trim()))?'':'none'})}
 function enhance(tb){if(tb.dataset.sortable||tb.rows.length<3)return;tb.dataset.sortable='1';const hr=tb.rows[0];
+  {const bar=document.createElement('div');bar.className='tbar';bar.innerHTML='<button class="xl" type="button">'+XLI+'Excel</button>';bar.firstChild.onclick=()=>exportTable(tb);if(tb.parentNode)tb.parentNode.insertBefore(bar,tb)}
   {const fr=tb.insertRow(1);fr.className='frow';[...hr.cells].forEach((th,ci)=>{const c=fr.insertCell();c.className=th.className.replace('sortable','');const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;const i=document.createElement('input');i.className='cf';i.dataset.c=ci;i.placeholder='filter';i.setAttribute('aria-label','Filter '+tx);i.oninput=()=>applyFilters(tb);c.appendChild(i)})}
   [...hr.cells].forEach((th,ci)=>{const tx=th.textContent.trim();if(!tx||/trend/i.test(tx))return;th.classList.add('sortable');
     th.onclick=()=>{const dir=th.dataset.dir==='asc'?'desc':'asc';[...hr.cells].forEach(c=>{c.dataset.dir='';const a=c.querySelector('.sa');if(a)a.remove()});th.dataset.dir=dir;th.insertAdjacentHTML('beforeend','<span class="sa">'+(dir==='asc'?'▲':'▼')+'</span>');
@@ -656,6 +668,7 @@ hh('assistant','Assistant','These short notes appear when you rest the pointer o
 hh(['eur','hkd','lc','pln','aud'],'Currency','Show the values in euro or in the local currency of the branch.');
 hh('file archive','File archive','Upload files, or switch between the branches and months already uploaded on this computer.');
 hh('branch and month','Branch and month','Choose which uploaded file to look at.');
+hh('excel','Export to Excel','Download this table as an Excel file: the columns and rows you see now, after sorting and filtering.');
 hh('brand','Branches','Click to open the list of branches. Hover a branch to see its months, most recent first, and click a month to open it.');
 hh('search','Search','Type a code or a name to find an item and open its card.');
 // key numbers
@@ -743,6 +756,7 @@ function hLook(t){let k;
   else if(t.matches('.tile')){const l=t.querySelector('.tl');k=hk(l?l.textContent:'')}
   else if(t.id==='q')k='search';
   else if(t.id==='brand')k='brand';
+  else if(t.matches('.xl'))k='excel';
   else if(t.matches('label')&&t.id!=='filw'&&!t.classList.contains('hbtn')){const n=[...t.childNodes].find(x=>x.nodeType===3);k=hk(n?n.textContent:'')}
   else if(t.matches('summary'))k=hk(t.textContent);
   else if(t.matches('th'))k=hk(t.textContent);
@@ -761,7 +775,7 @@ function hShow(t,h,n){const b=$('helpbub');b.innerHTML=`<div class="av"><svg wid
   b.style.left=x+'px';b.style.top=y+'px';
   const s=hSeen();s[h.k]=(s[h.k]||0)+1;try{localStorage.setItem('sa_help_seen',JSON.stringify(s))}catch(e){}
   hHide=setTimeout(hClear,9000)}
-function hFind(el){return el&&el.closest?el.closest('th,.kpi,.card>b,.tabs button,#nav button,.chip,.hbtn,.seg button,summary,#q,#filw,.gi label,.tile,#toPar,#brand'):null}
+function hFind(el){return el&&el.closest?el.closest('.xl,th,.kpi,.card>b,.tabs button,#nav button,.chip,.hbtn,.seg button,summary,#q,#filw,.gi label,.tile,#toPar,#brand'):null}
 document.addEventListener('mouseover',e=>{const t=hFind(e.target);if(t===hEl)return;hClear();hEl=t;if(!t||!$('helpon').checked)return;const h=hLook(t);if(!h)return;const n=hSeen()[h.k]||0;hT=setTimeout(()=>hShow(t,h,n),n<2?650:1800)});
 document.addEventListener('mouseout',e=>{if(!hEl||(e.relatedTarget&&hEl.contains(e.relatedTarget)))return;hClear();hEl=null});
 ['mousedown','keydown','wheel'].forEach(ev=>document.addEventListener(ev,hClear,true));
