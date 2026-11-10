@@ -361,7 +361,9 @@ $('mx').onclick=()=>$('modal').style.display='none';$('modal').onclick=e=>{if(e.
 /* ---------- analisi per decidere ---------- */
 const whTxt=o=>{const w=Object.entries((o&&o.wh)||{});return w.length?w.sort((a,b)=>b[1].eur-a[1].eur).map(([k,v])=>`<span class="pill" title="${nf.format(v.qty)} pieces · ${eur(v.eur)}">${k}</span>`).join(' '):'–'};
 const expLots=()=>{const L=D.exp_lots||D.items.flatMap(o=>(o.lots||[]).filter(l=>l.days<=0&&D.physical.includes(l.loc)).map(l=>({no:o.no,desc:o.desc,v1:o.vendor,lot:l.lot,loc:l.loc,exp:l.exp,days:l.days,eur:l.eur})));return L.slice().sort((a,b)=>b.eur-a.eur)};
-const dosTxt=o=>{if(!o||!o.dos)return '–';return nf.format(o.dos)+(D.metric==='DOS'?' days':' months')+' <span class="pill">'+String(o.cat||'').replace(/^(DOS|MOS) /,'')+'</span>'};
+const BCOL=[['#DDF1DE','#1B5E20'],['#E8F3D6','#3F6B12'],['#FBF0C6','#7A5A00'],['#FBE1CC','#9A4A00'],['#F6D5D1','#A12A1E']];
+const bandPill=c=>{if(!c)return '–';const i=Object.keys(D.dos).indexOf(c),k=BCOL[Math.max(0,Math.min(BCOL.length-1,i<0?0:i))];return `<span class="pill" style="background:${k[0]};color:${k[1]};font-weight:600">${String(c).replace(/^(DOS|MOS) /,'')}</span>`};
+const dosTxt=o=>{if(!o||!o.dos)return '–';return nf.format(o.dos)+(D.metric==='DOS'?' days':' months')+' '+bandPill(o.cat)};
 const IX=()=>D._ix||(D._ix=new Map(D.items.map(o=>[o.no,o])));
 const expWh=o=>{const s=new Set(((o&&o.lots)||[]).filter(l=>l.days<=0&&D.physical.includes(l.loc)).map(l=>l.loc));return [...s].map(k=>`<span class="pill">${k}</span>`).join(' ')||'–'};
 const rateOf=(o,k)=>{const a=(o.sales||[]).slice(-k);return a.length?a.reduce((x,y)=>x+y,0)/a.length/30:0};
@@ -447,7 +449,7 @@ function macroRender(id,list,cats,label,perish){
     const heads=['Code','Description'].concat(st.tab==='ALL'?['Category']:[]).concat(['Stock','DOS','Sales trend','Band']).concat(perish?['Expired','Next expiry']:[]);
     const al=['',''].concat(st.tab==='ALL'?['']:[]).concat(['n','n','','']).concat(perish?['n','']:[]);
     const nm=Object.fromEntries(list);
-    $(id+'T').innerHTML=mk(heads,al,rows.map(o=>[o.no,o.no,o.desc].concat(st.tab==='ALL'?[nm[(o.sec||'').toUpperCase()]||o.sec]:[]).concat([eur(o.eur),o.dos?nf.format(o.dos)+u:'–',spark(o),o.cat||'–']).concat(perish?[o.exp>0?eur(o.exp):'–',o.next&&o.next.getFullYear()<2040?fdate(iso(o.next)):'–']:[])),['Sales trend','Next expiry']);
+    $(id+'T').innerHTML=mk(heads,al,rows.map(o=>[o.no,o.no,o.desc].concat(st.tab==='ALL'?[nm[(o.sec||'').toUpperCase()]||o.sec]:[]).concat([eur(o.eur),o.dos?nf.format(o.dos)+u:'–',spark(o),bandPill(o.cat)]).concat(perish?[o.exp>0?eur(o.exp):'–',o.next&&o.next.getFullYear()<2040?fdate(iso(o.next)):'–']:[])),['Sales trend','Next expiry']);
     $(id+'T').querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))};
   $(id+'Q').oninput=draw;draw()}
 function bevRender(){if(!D)return;macroRender('bevA',BEVL,['WINE','SPIRITS','BEER','SOFT DRINKS'],'beverage',true);macroRender('bevN',NFL,['NON-FOOD'],'non-food',false)}
@@ -480,7 +482,7 @@ function groupHTML(arr,title,save){const s=gstats(arr),slowK=D.slowKey;
   return `<div class="crumb"><b>${title}</b><span class="pill">${s.n} items</span>${FL.filter(f=>s.f[f[0]]).map(f=>`<span class="flag">${f[1]}</span>`).join('')}</div>
   <div class="grid k6"><div class="card kpi"><div class="l">Stock</div><div class="v" style="font-size:24px">${money(s.eur)}</div></div><div class="card kpi"><div class="l">Group DOS</div><div class="v" style="font-size:24px">${dtxt(s.dos)}</div></div><div class="card kpi"><div class="l">Expired</div><div class="v" style="font-size:24px">${money(s.exp)}</div></div><div class="card kpi"><div class="l">E&O</div><div class="v" style="font-size:24px">${money(s.eo)}</div></div></div>${msg}
   ${save?`<div class="gi" style="margin:10px 0"><input id="gname" placeholder="Group name" value="${title.replace(/"/g,'')}"><button class="btn2" id="gsv">Save group</button></div>`:''}
-  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${o.dos?nf.format(o.dos)+(D.metric==='DOS'?' days':' months'):'–'}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>40?`<div class="foot">Showing the top 40 by value.</div>`:''}`}
+  <table><tr><th>Code</th><th>Item</th><th>Warehouse</th><th class="xc">Supplier</th><th class="xc">Type</th><th class="n">Stock</th><th class="n">DOS</th><th class="xc">Trend</th><th></th></tr>${rows.map(o=>`<tr class="go" data-no="${o.no}"><td>${o.no}</td><td>${o.desc}</td><td>${whTxt(o)}</td><td class="xc">${o.vendor||''}</td><td class="xc">${o.type||''}</td><td class="n">${eur(o.eur)}</td><td class="n">${dosTxt(o)}</td><td class="xc">${spark(o)}</td><td>${o.blk?'<span class="flag">blocked</span>':''}</td></tr>`).join('')}</table>${arr.length>40?`<div class="foot">Showing the top 40 by value.</div>`:''}`}
 function bindRows(root){root.querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no))}
 function explorer(){const base=pool().filter(o=>path.every(t=>has(o,t)));
   const cnt=new Map;base.forEach(o=>toks(o).forEach(t=>{if(path.includes(t)||!okTok(t,path.length>0))return;const c=cnt.get(t)||{n:0,e:0};c.n++;c.e+=o.eur;cnt.set(t,c)}));
