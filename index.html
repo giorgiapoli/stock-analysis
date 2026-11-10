@@ -144,12 +144,11 @@ th.sortable{cursor:pointer;user-select:none}th.sortable:hover{color:var(--ink)}.
         <div class="foot" id="foot"></div>
   </section>
   <section id="ana" style="display:none">
-    <p class="lead" style="margin:6px 0 10px">What to do now, from the most urgent.</p>
+    <div style="display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin:6px 0 12px"><a href="#" id="toPar" style="display:inline-flex;align-items:center;gap:8px;font-weight:700;text-decoration:none;color:#0F766E;background:#E6F4F1;padding:8px 14px;border-radius:8px"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12"/><circle cx="5" cy="4" r="1.6" fill="#E6F4F1"/><circle cx="11" cy="8" r="1.6" fill="#E6F4F1"/><circle cx="6.5" cy="12" r="1.6" fill="#E6F4F1"/></svg>Parameters per warehouse</a><span style="color:var(--mute)">What to do now, from the most urgent.</span></div>
     <div class="grid k6" id="anaTiles"></div>
     <div class="card" id="anaMain" style="margin-top:16px"></div>
     <h2>Charts</h2><div class="grid c2" id="anaCharts"></div>
-    <h2>Parameters per warehouse</h2><p class="lead">Decide when a lot becomes urgent and how much margin to keep before expiry. Each warehouse can have its own values.</p><div id="anaParams"></div>
-  </section>
+      </section>
   <section id="bev" style="display:none">
     <h2 style="margin-top:6px">Beverage</h2>
     <p class="lead">Wine, spirits, beer and soft drinks, kept apart from the rotation stock.</p>
@@ -427,11 +426,11 @@ function actList(R){const e=x=>money(x);let t='',d='',h='';
   else if(actTab==='rep'){t='Products to replace, or already replaced';d='Items whose sales moved to another code, or that are blocked for purchase and will not clear on their own.';
     h=mk(['Item','Warehouse','Stock','DOS','Status','Suggested action'],['','','n','n','',''],R.rep.slice(0,500).map(x=>[x.o.no,`<b>${x.o.no}</b> ${x.o.desc}`,whTxt(x.o),e(x.o.eur),dosTxt(x.o),x.st==='rep'?`<span class="pill" style="background:#DDF1EE;color:#0B5D56;font-weight:600">Replaced by ${x.by}</span>`:'<span class="pill" style="background:#FDE8E6;color:#A12A1E;font-weight:600">Blocked, no replacement</span>',x.st==='rep'?'Sell off the remaining stock: promote or transfer':'Decide: sell off, or find a replacement']))+`<div class="foot">Replaced = the same product (same mastercode) now sells under another code. Showing ${Math.min(500,R.rep.length)} of ${R.rep.length} items.</div>`}
   else{t='Items by DOS band';d='Click a band to see its items.';h=dosTab()}
-  $('anaMain').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between"><div><div style="font-size:20px;font-weight:700">${t}</div><div style="color:var(--mute);margin:2px 0 12px">${d}</div></div>${actTab==='promote'||actTab==='exc'?'<a href="#" id="toPar" style="font-weight:600;text-decoration:none;color:#0F766E">Parameters per warehouse ›</a>':''}</div>${h}`;
+  $('anaMain').innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px;align-items:baseline;justify-content:space-between"><div><div style="font-size:20px;font-weight:700">${t}</div><div style="color:var(--mute);margin:2px 0 12px">${d}</div></div></div>${h}`;
   $('anaMain').querySelectorAll('tr.go[data-no]').forEach(tr=>tr.onclick=()=>card(tr.dataset.no));
   $('anaMain').querySelectorAll('[data-band]').forEach(b=>b.onclick=()=>{actBand=b.dataset.band==='ALL'?null:b.dataset.band;actList(R)});
   const wc=$('wkclr');if(wc)wc.onclick=()=>{actWeek=null;actList(R)};
-  const tp=$('toPar');if(tp)tp.onclick=ev=>{ev.preventDefault();const dt=[...document.querySelectorAll('#ana > details')].find(x=>/Parameters/.test(x.querySelector('summary').textContent));if(dt){dt.open=true;dt.scrollIntoView({behavior:'smooth'})}}}
+  }
 function actCharts(R){const maxP=Math.max(...Object.values(R.wpc).map(p=>p.promote),30),weeks=Math.min(30,Math.ceil(maxP/7)+1);
   const wk=[];for(let i=0;i<weeks;i++){const w=R.wk[i]||{sell:0,risk:0};wk.push({l:String(i*7+7)+' d',s:[w.sell,w.risk]})}
   const bd=Object.keys(D.dos),bi=pool().filter(o=>o.cat),bv=bd.map((k,i)=>({k,i,v:bi.filter(o=>o.cat===k).reduce((s,o)=>s+o.eur,0)})),bm=Math.max(1,...bv.map(x=>x.v));
@@ -439,7 +438,9 @@ function actCharts(R){const maxP=Math.max(...Object.values(R.wpc).map(p=>p.promo
   <div class="card"><b>Stock by DOS band</b><div style="color:var(--mute);font-size:13px">Click a band to see its items.</div><div style="margin-top:10px">${bv.map(x=>`<div class="row" data-band="${x.k}" style="cursor:pointer;grid-template-columns:90px 1fr 90px"><span>${lbl(x.k)}</span><div class="t"><i style="width:${x.v/bm*100}%;background:${dcol[x.i]}"></i></div><span class="r">${money(x.v)}</span></div>`).join('')}</div></div>`;
   $('anaCharts').querySelectorAll('rect[data-i]').forEach(r=>r.onclick=()=>{actTab='promote';actWeek=+r.dataset.i;actRender();$('anaMain').scrollIntoView({behavior:'smooth'})});
   $('anaCharts').querySelectorAll('[data-band]').forEach(b=>b.onclick=()=>{actTab='dos';actBand=b.dataset.band;actRender();$('anaMain').scrollIntoView({behavior:'smooth'})})}
-function actParams(){const ws=D.physical,all=ws.map(w=>wpOf(w)),same=k=>all.every(p=>p[k]===all[0][k])?all[0][k]:'';
+function openParams(){$('mbody').innerHTML='<h2 style="margin-top:0">Parameters per warehouse</h2><p style="color:var(--mute);margin-top:0">Decide when a lot becomes urgent and how much margin to keep before expiry. Each warehouse can have its own values; the lists update as you type.</p><div id="anaParams"></div>';actParams();$('modal').style.display='block'}
+document.addEventListener('click',ev=>{const a=ev.target.closest&&ev.target.closest('#toPar');if(a){ev.preventDefault();if(D)openParams()}});
+function actParams(){if(!$('anaParams'))return;const ws=D.physical,all=ws.map(w=>wpOf(w)),same=k=>all.every(p=>p[k]===all[0][k])?all[0][k]:'';
   const inp=(w,k,v,wd)=>`<input type="number" min="0" data-w="${w}" data-k="${k}" value="${v}" placeholder="–" aria-label="${k} ${w}" style="width:${wd}px;padding:7px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);font:inherit">`;
   const row=(w,lab,get,bg)=>`<tr style="${bg}"><td><b>${lab}</b></td><td>${inp(w,'promote',get('promote'),90)}</td><td>${inp(w,'margin',get('margin'),90)}</td><td>${inp(w,'target',get('target'),90)}</td><td>${inp(w,'minval',get('minval'),110)} <span style="color:var(--mute)">${sym()}</span></td></tr>`;
   $('anaParams').innerHTML=`<div class="gi" style="margin-bottom:12px"><label>Estimate future sales from <select id="apK"><option value="3" ${actPace===3?'selected':''}>the last 3 months</option><option value="6" ${actPace===6?'selected':''}>the last 6 months</option><option value="12" ${actPace===12?'selected':''}>the last 12 months</option></select></label><span style="color:var(--mute);font-size:13px">The same for all warehouses.</span></div>
@@ -744,7 +745,7 @@ function hShow(t,h,n){const b=$('helpbub');b.innerHTML=`<div class="av"><svg wid
   b.style.left=x+'px';b.style.top=y+'px';
   const s=hSeen();s[h.k]=(s[h.k]||0)+1;try{localStorage.setItem('sa_help_seen',JSON.stringify(s))}catch(e){}
   hHide=setTimeout(hClear,9000)}
-function hFind(el){return el&&el.closest?el.closest('th,.kpi,.card>b,.tabs button,#nav button,.chip,.hbtn,.seg button,summary,#q,#filw,.gi label,.tile'):null}
+function hFind(el){return el&&el.closest?el.closest('th,.kpi,.card>b,.tabs button,#nav button,.chip,.hbtn,.seg button,summary,#q,#filw,.gi label,.tile,#toPar'):null}
 document.addEventListener('mouseover',e=>{const t=hFind(e.target);if(t===hEl)return;hClear();hEl=t;if(!t||!$('helpon').checked)return;const h=hLook(t);if(!h)return;const n=hSeen()[h.k]||0;hT=setTimeout(()=>hShow(t,h,n),n<2?650:1800)});
 document.addEventListener('mouseout',e=>{if(!hEl||(e.relatedTarget&&hEl.contains(e.relatedTarget)))return;hClear();hEl=null});
 ['mousedown','keydown','wheel'].forEach(ev=>document.addEventListener(ev,hClear,true));
