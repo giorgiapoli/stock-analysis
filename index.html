@@ -210,10 +210,13 @@ function parse(wb){
   meta.ref=iso(meta.refd);meta.fx=meta.fx||1;meta.sub=meta.subsidiary||'BRANCH';meta.cur=meta.fx===1?'EUR':(CUR[meta.sub.toUpperCase()]||'LC');
   const R={meta};
   // RECAP
-  const rec=need('RECAP');const cats={},other={},expLoc={},dos={},origin={},whs={};let mode=null,cur2=null;
+  const rec=need('RECAP');const cats={},other={},expLoc={},dos={},dosBev={},origin={},whs={};let mode=null,cur2=null,sub='food',lastBand=null;
+  const alias={'ROTATION STOCK FOOD (DOS)':'ROTATION STOCK (DOS)','NEW FOOD (excluded from rotation)':'NEW (excluded from rotation)','NEW BEVERAGE (excluded from rotation)':'NEW (excluded from rotation)'};
   const catn=['ROTATION STOCK (DOS)','ROTATION STOCK (MOS)','NEW (excluded from rotation)','WINE','SPIRITS','BEER','SOFT DRINKS','NON-FOOD'];
   const band=/^(DOS|MOS) /;
   for(const r of rec){if(r[0]==null)continue;const a=S(r[0]);
+    if(mode===null&&alias[a]){const k=alias[a];if(cats[k])cats[k].eur+=N(r[3]);else cats[k]={sku:N(r[1]),eur:N(r[3])};continue}
+    if(mode===null&&a==='ROTATION STOCK BEVERAGE (DOS)')continue;
     if(catn.includes(a)&&!cats[a]&&mode===null){cats[a]={sku:N(r[1]),eur:N(r[3])};continue}
     if(a==='OTHER LOCATIONS'){mode='other';continue}
     if(a.startsWith('Physical warehouses: rows')){mode=null;continue}
@@ -221,15 +224,17 @@ function parse(wb){
     if(a==='TOT'){R.tot_eur=N(r[3]);R.tot_sku=N(r[1]);R.tot_lc=N(r[5]);mode=null;continue}
     if(a==='Expired Value by location'){mode='exp';continue}
     if(a==='Expired Value on Total Stock'){R.expired_eur=N(r[3]);continue}
-    if(a.startsWith('Open for ROTATION')){mode='dos';continue}
+    if(a.startsWith('Open for ROTATION')){mode='dos';sub='food';continue}
     if(a.startsWith('Open for LOCAL')){mode='origin';cur2=null;continue}
     if(a.startsWith('Open for detail by location')){mode='wh';cur2=null;continue}
     if(mode==='other'&&r[3]!=null){other[a]=N(r[3]);continue}
     if(mode==='exp'&&r[3]!=null){expLoc[a]=N(r[3]);continue}
-    if(mode==='dos'){if(band.test(a)&&r[3]!=null)dos[a]={sku:N(r[1]),eur:N(r[3])};else if(a==='Expired Value on Rotation Stock')R.expired_rot_eur=N(r[3]);continue}
+    if(mode==='dos'){if(/^ROTATION STOCK BEVERAGE \(DOS\) - detail/i.test(a)){sub='bev';continue}
+      if(band.test(a)&&r[3]!=null)(sub==='bev'?dosBev:dos)[a]={sku:N(r[1]),eur:N(r[3])};else if(a==='Expired Value on Rotation Stock'){if(sub==='bev')R.expired_bev_eur=N(r[3]);else R.expired_rot_eur=N(r[3])}continue}
     if(mode==='origin'){
       if(['LOCAL','IMPORT NO IFB','IMPORT IFB'].includes(a)){cur2=a;origin[a]={}}
-      else if(cur2&&band.test(a)&&r[3]!=null)origin[cur2][a]={sku:N(r[1]),eur:N(r[3])};
+      else if(cur2&&band.test(a)&&r[3]!=null){origin[cur2][a]={sku:N(r[1]),eur:N(r[3]),loc:{}};lastBand=a}
+      else if(cur2&&lastBand&&a.startsWith('- ')&&r[3]!=null)origin[cur2][lastBand].loc[a.slice(2)]={sku:N(r[1]),eur:N(r[3])};
       else if(cur2&&a==='Total')origin[cur2].Total={sku:N(r[1]),eur:N(r[3])};
       else if(cur2&&a==='Expired Value')origin[cur2].Expired=N(r[3]);continue}
     if(mode==='wh'){
@@ -240,7 +245,7 @@ function parse(wb){
       else if(cur2&&a.startsWith('NEW'))whs[cur2].NEW={sku:N(r[1]),eur:N(r[3])}}
   }
   if(!R.tot_eur)throw new Error('Total (TOT row) not found in RECAP.');
-  Object.assign(R,{cats,other,expired_by_loc:expLoc,dos,origin,whs});
+  Object.assign(R,{cats,other,expired_by_loc:expLoc,dos,dosBev,origin,whs});
   R.metric=Object.keys(dos)[0]&&Object.keys(dos)[0].startsWith('MOS')?'MOS':'DOS';
   R.slowKey=Object.keys(dos).pop();
   // magazzini fisici e articoli per magazzino
@@ -276,8 +281,8 @@ function parse(wb){
   const eo=need('RECAP E&O');R.eo_total_lcy=N(eo[1][3]);R.eo_stock_lcy=N(eo[1][4]);R.eo_top=[];
   for(let i=3;i<eo.length;i++){const r=eo[i];if(r[0]&&S(r[2])==='TUTTE LE LOCATION'&&N(r[3])){const o=byNo.get(S(r[0]));if(o)o.eo=N(r[3]);R.eo_top.push({no:S(r[0]),desc:S(r[1]),lcy:N(r[3])})}}
   // scaduto
-  const fe=need('FOCUS ON EXPIRED');const fh=fe[1].map(x=>S(x));const cev=fh.findIndex(x=>norm(x).includes('expired value')),cl=col(fh,'location code'),cLot=col(fh,'lot no_'),cEx=col(fh,'expiry date');R.exp_top=[];R.exp_lots=[];let par=null;
-  for(let i=2;i<fe.length;i++){const r=fe[i];if(r[0]&&S(r[cl])==='TUTTE LE LOCATION'){par={no:S(r[0]),desc:S(r[1]),v1:S(r[3])};if(N(r[cev]))R.exp_top.push({no:S(r[0]),desc:S(r[1]),eur:N(r[cev]),v1:S(r[3])})}else if(r[0]&&par&&N(r[cev])){const ed=toDate(r[cEx]);R.exp_lots.push({no:S(r[0]),desc:par.desc,v1:par.v1,lot:cLot>=0?S(r[cLot]):'',loc:S(r[cl]),exp:ed?iso(ed):'',days:ed?Math.round((ed-meta.refd)/864e5):0,eur:N(r[cev])})}}
+  const fe=need('FOCUS ON EXPIRED');const fh=fe[1].map(x=>S(x));const cev=fh.findIndex(x=>norm(x).includes('expired value')),cl=col(fh,'location code'),cLot=col(fh,'lot no_'),cEx=col(fh,'expiry date'),cNo=Math.max(col(fh,'item no_'),0),cDe=col(fh,'description')>=0?col(fh,'description'):1,cV1=col(fh,'vendor 1')>=0?col(fh,'vendor 1'):3;R.exp_top=[];R.exp_lots=[];let par=null;
+  for(let i=2;i<fe.length;i++){const r=fe[i];if(r[cNo]&&S(r[cl])==='TUTTE LE LOCATION'){par={no:S(r[cNo]),desc:S(r[cDe]),v1:S(r[cV1])};if(N(r[cev]))R.exp_top.push({no:S(r[cNo]),desc:S(r[cDe]),eur:N(r[cev]),v1:S(r[cV1])})}else if(r[cNo]&&par&&N(r[cev])){const ed=toDate(r[cEx]);R.exp_lots.push({no:S(r[cNo]),desc:par.desc,v1:par.v1,lot:cLot>=0?S(r[cLot]):'',loc:S(r[cl]),exp:ed?iso(ed):'',days:ed?Math.round((ed-meta.refd)/864e5):0,eur:N(r[cev])})}}
   R.exp_sum_items=R.exp_top.reduce((a,b)=>a+b.eur,0);
   R.slow=items.filter(o=>(o.st==='ROTATION'||o.st==='PARTIAL NEW')&&o.cat===slowTxt).sort((a,b)=>b.eur-a.eur);
   R.items=items;R.eo_top.sort((a,b)=>b.lcy-a.lcy);R.exp_top.sort((a,b)=>b.eur-a.eur);
